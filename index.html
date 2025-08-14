@@ -4,61 +4,65 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAACq6DbKAAAAnUlEQVR4Xu2ZQQ6DMAwE8f//yWbS6m1e1bqgR0qkqgq7lqk3QyQYwq0mYz2K6p/8d8Q6qk8a4p4pQdS2y7gq4mA7C8g2bN2gq5b0g0Qx1s3g1rjQm3wG8sCwVQW3wS9m3qk0vGm0l1Q0zYl2a2p6h0gOQ0wzqf8JxQ3x0Q/1bqg8g6xS8Vx6gJv4Jr0s2K2G0Bz6s8Q8Oqk8LzJmF8H1D1wqg7xgJcV2o8C5Q8qE8qzG6b/1k3C0C9w4l6w6Xc1gX7sMB8HqQG8yX5w1dS1b6AQvK0t7u3yqAAAAABJRU5ErkJggg==" />
-<title>iPhone Check Tool</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<title>2M Digital Consulting — iPhone Check Tool</title>
 <style>
-  :root{
-    --bg:#0e0f14; --card:#171924; --muted:#8a90a6; --text:#e9ecf1; --ok:#19c37d; --warn:#ffb020; --bad:#ef4444; --accent:#3b82f6;
-  }
+  :root{--bg:#f7f8fb;--card:#ffffff;--muted:#5c6475;--text:#0f172a;--ok:#16a34a;--warn:#f59e0b;--bad:#ef4444;--accent:#2563eb;--border:#e5e7eb}
   html,body{height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;}
-  .container{max-width:880px;margin:0 auto;padding:clamp(12px,2vw,20px);padding-bottom:96px;}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
-  h1{font-size:22px;margin:0;}
+  .container{max-width:880px;margin:0 auto;padding:clamp(12px,2vw,20px);padding-bottom:108px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:16px}
+  h1{font-size:20px;margin:0;}
   .sub{font-size:12px;color:var(--muted)}
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
-  .tile{background:var(--card);border-radius:16px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25);position:relative;}
+  .tile{background:var(--card);border:1px solid var(--border);border-radius:16px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.06);position:relative;}
   .tile button{all:unset;position:absolute;inset:0;cursor:pointer;border-radius:16px}
   .tile h3{margin:0;font-size:14px;text-align:center}
-  .status{height:10px;width:10px;border-radius:50%;background:#2d3142;box-shadow:0 0 0 3px rgba(255,255,255,.06) inset}
+  .status{height:10px;width:10px;border-radius:50%;background:#c7cad6;box-shadow:0 0 0 3px rgba(0,0,0,.04) inset}
   .status.ok{background:var(--ok)}
   .status.warn{background:var(--warn)}
   .status.bad{background:var(--bad)}
   .pill{font-size:10px;color:var(--muted)}
-  .bar{height:8px;background:#24283a;border-radius:8px;overflow:hidden}
+  .bar{height:8px;background:#eef1f8;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
   .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#22d3ee)}
-  .footer{position:fixed;inset:auto 0 0;backdrop-filter:blur(10px);background:rgba(14,15,20,.6);border-top:1px solid #23263a;padding:10px}
-  .footer .row{display:flex;gap:8px}
-  .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#1f2333;border:1px solid #2c3147;color:var(--text);padding:12px;border-radius:12px;font-weight:600}
+  .footer{position:fixed;inset:auto 0 0;backdrop-filter:blur(8px);background:rgba(255,255,255,.85);border-top:1px solid var(--border);padding:10px}
+  .footer .row{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#ffffff;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:12px;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.02)}
   .btn:active{transform:scale(.98)}
-  .badge{display:inline-flex;align-items:center;gap:6px;background:#1a1e2c;border:1px solid #2a3046;border-radius:999px;padding:6px 10px;font-size:12px}
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end}
-  .sheet{background:#0f1320;border-top-left-radius:18px;border-top-right-radius:18px;max-height:85vh;overflow:auto;width:100%;padding:16px;border-top:1px solid #24283a}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:#ffffff;border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end}
+  .sheet{background:#fff;border-top-left-radius:18px;border-top-right-radius:18px;max-height:85vh;overflow:auto;width:100%;padding:16px;border-top:1px solid var(--border)}
   .sheet h2{margin:0 0 6px;font-size:18px}
   .sheet p{color:var(--muted);font-size:14px;}
   .row{display:flex;gap:10px;align-items:center}
   .row.wrap{flex-wrap:wrap}
   .field{display:flex;flex-direction:column;gap:6px;margin:8px 0}
-  .field input,.field select,.field textarea{background:#111629;border:1px solid #2a3046;color:var(--text);border-radius:10px;padding:10px;font-size:14px}
-  video,canvas{max-width:100%;border-radius:12px;border:1px solid #2a3046}
-  .link{color:#7cb8ff}
+  .field input,.field select,.field textarea{background:#ffffff;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px;font-size:14px}
+  video,canvas{max-width:100%;border-radius:12px;border:1px solid var(--border)}
+  .link{color:#0b63ff}
   .small{font-size:12px;color:var(--muted)}
-  .kbd{background:#0b0e17;border:1px solid #26304b;border-bottom-width:3px;padding:2px 6px;border-radius:6px;font-weight:700}
+  .kbd{background:#fff;border:1px solid var(--border);border-bottom-width:3px;padding:2px 6px;border-radius:6px;font-weight:700}
   .muted{color:var(--muted)}
+  .qrWrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+  canvas.qr{border:1px solid var(--border);background:#fff;border-radius:10px}
 </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div>
-        <h1>iPhone Check Tool</h1>
-        <div class="sub">Verifica rapida post‑acquisto – ottimizzato per iPhone</div>
+      <div class="row" style="gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <!-- Inline brand logo -->
+          <svg width="36" height="36" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect rx="14" ry="14" x="6" y="6" width="52" height="52" fill="url(#g)"/><text x="32" y="40" text-anchor="middle" font-size="26" fill="#fff" font-family="ui-sans-serif,system-ui">2M</text></svg>
+          <div>
+            <h1>2M Digital Consulting — iPhone Check Tool</h1>
+            <div class="sub">Verifica rapida post‑acquisto – ottimizzato per iPhone</div>
+          </div>
+        </div>
       </div>
       <div class="badge" id="deviceBadge">Dispositivo: <span id="deviceName">—</span></div>
     </header>
 
     <div class="grid" id="grid">
-      <!-- Tiles (2 per riga) -->
       <div class="tile" data-test="audio">
         <div class="status" id="status-audio"></div>
         <h3>Audio & Microfono</h3>
@@ -127,16 +131,16 @@
     </div>
   </div>
 
-  <!-- Footer actions -->
   <div class="footer">
-    <div class="row">
+    <div class="row" style="margin-bottom:8px">
       <button class="btn" id="exportTxt">Esporta report (.txt)</button>
       <button class="btn" id="exportJson">Esporta dati (.json)</button>
       <button class="btn" id="print">Stampa / PDF</button>
+      <button class="btn" id="finalize">Finalizza & QR</button>
     </div>
+    <div class="small" style="text-align:center;color:var(--muted)">© 2025 2M Digital Consulting SRLS — www.2m-srls.com</div>
   </div>
 
-  <!-- Modal sheet -->
   <div class="modal" id="modal">
     <div class="sheet" id="sheet">
       <div class="row" style="justify-content:space-between">
@@ -162,15 +166,12 @@ function refreshStatuses(){
     if(s==='ok') dom.classList.add('ok'); else if(s==='bad') dom.classList.add('bad'); else if(s==='warn') dom.classList.add('warn');
   })
   document.getElementById('notes').value = state.notes||'';
-  // Device badge
   const name = state.device?.model || navigator.userAgentData?.platform || navigator.platform || 'iPhone?';
   document.getElementById('deviceName').textContent = name;
 }
 
-// Persist notes
 document.getElementById('notes').addEventListener('input', e=> setState({notes:e.target.value}))
 
-// Modal handling
 const modal = document.getElementById('modal');
 const sheetTitle = document.getElementById('sheetTitle');
 const sheetBody = document.getElementById('sheetBody');
@@ -179,14 +180,9 @@ function closeSheet(){ modal.style.display='none'; }
 modal.addEventListener('click', (e)=>{ if(e.target===modal) closeSheet(); })
 document.getElementById('closeSheet').onclick = closeSheet;
 
-// Tile routing
-Array.from(document.querySelectorAll('.tile')).forEach(t=>{
-  t.addEventListener('click',()=>{
-    const id = t.dataset.test; (handlers[id]||(()=>{}))();
-  })
-})
+Array.from(document.querySelectorAll('.tile')).forEach(t=>{ t.addEventListener('click',()=>{ const id=t.dataset.test; (handlers[id]||(()=>{}))(); })})
 
-// --- Test handlers ---
+// --- Test handlers (come versione precedente) ---
 const handlers = {
   audio(){
     const body = el(`<div>
@@ -201,247 +197,68 @@ const handlers = {
         <label class='small'>Intensità microfono</label>
         <div class='bar'><i id='micLevel'></i></div>
       </div>
-      <audio id='tone' preload='auto'></audio>
       <p class='small muted'>Nota: iOS richiede il gesto dell’utente per l’audio; se non senti nulla, alza il volume.</p>
     </div>`);
     openSheet('Audio & Microfono', body);
-
-    // Tone generator
-    const toneEl = body.querySelector('#tone');
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    let osc; 
-    body.querySelector('#playTone').onclick = ()=>{
-      if(osc) osc.stop();
-      osc = ctx.createOscillator(); const gain=ctx.createGain();
-      osc.frequency.value = 440; // A4
-      gain.gain.setValueAtTime(0.2, ctx.currentTime);
-      osc.connect(gain).connect(ctx.destination); osc.start(); setTimeout(()=>osc.stop(), 1500);
-    }
-
-    // Mic meter
+    const ctx = new (window.AudioContext||window.webkitAudioContext)(); let osc;
+    body.querySelector('#playTone').onclick = ()=>{ if(osc) osc.stop(); osc = ctx.createOscillator(); const gain=ctx.createGain(); osc.frequency.value=440; gain.gain.setValueAtTime(0.2, ctx.currentTime); osc.connect(gain).connect(ctx.destination); osc.start(); setTimeout(()=>osc.stop(),1500); }
     let mediaStream, analyser, raf;
-    body.querySelector('#startMic').onclick = async ()=>{
-      try{
-        mediaStream = await navigator.mediaDevices.getUserMedia({audio:true});
-        const actx = new (window.AudioContext||window.webkitAudioContext)();
-        const src = actx.createMediaStreamSource(mediaStream);
-        analyser = actx.createAnalyser(); analyser.fftSize=256; src.connect(analyser);
-        const data = new Uint8Array(analyser.frequencyBinCount);
-        const bar = body.querySelector('#micLevel');
-        const loop = ()=>{ analyser.getByteTimeDomainData(data); let rms=0; for(let i=0;i<data.length;i++){const v=(data[i]-128)/128; rms+=v*v;} rms=Math.sqrt(rms/data.length); bar.style.width = Math.min(100, (rms*300)).toFixed(1)+'%'; raf=requestAnimationFrame(loop)}; loop();
-      }catch(err){ alert('Permesso microfono negato o non disponibile.'); }
-    }
+    body.querySelector('#startMic').onclick = async ()=>{ try{ mediaStream = await navigator.mediaDevices.getUserMedia({audio:true}); const actx=new (window.AudioContext||window.webkitAudioContext)(); const src=actx.createMediaStreamSource(mediaStream); analyser=actx.createAnalyser(); analyser.fftSize=256; src.connect(analyser); const data=new Uint8Array(analyser.frequencyBinCount); const bar=body.querySelector('#micLevel'); const loop=()=>{ analyser.getByteTimeDomainData(data); let rms=0; for(let i=0;i<data.length;i++){const v=(data[i]-128)/128; rms+=v*v;} rms=Math.sqrt(rms/data.length); bar.style.width=Math.min(100,(rms*300)).toFixed(1)+'%'; raf=requestAnimationFrame(loop)}; loop(); }catch(err){ alert('Permesso microfono negato o non disponibile.'); } }
     body.querySelector('#stopMic').onclick = ()=>{ if(mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()) } cancelAnimationFrame(raf) }
     body.querySelector('#passAudio').onclick = ()=>{ mark('audio','ok'); closeSheet(); }
   },
-
-  buttons(){
-    const body = el(`<div>
-      <p>Premi in sequenza <span class='kbd'>Volume +</span>, <span class='kbd'>Volume −</span> e il tasto laterale. I browser non possono leggere questi eventi su iPhone, quindi conferma manualmente.</p>
-      <div class='row wrap'>
-        <button class='btn' id='ok'>Tasti funzionanti</button>
-        <button class='btn' id='warn'>Non sicuro</button>
-      </div>
-      <p class='small muted'>Suggerimento: prova anche il cursore Suoneria/Silenzioso se presente.</p>
-    </div>`);
-    openSheet('Tasti fisici', body);
-    body.querySelector('#ok').onclick = ()=>{ mark('buttons','ok'); closeSheet(); }
-    body.querySelector('#warn').onclick = ()=>{ mark('buttons','warn'); closeSheet(); }
-  },
-
-  charging(){
-    const body = el(`<div>
-      <p>Collega il cavo di ricarica e verifica la comparsa dell’icona ⚡︎. I browser su iOS non espongono lo stato batteria, quindi la conferma è manuale.</p>
-      <div class='row wrap'>
-        <button class='btn' id='ok'>Ricarica OK</button>
-        <button class='btn' id='clean'>Porta da pulire</button>
-      </div>
-      <p class='small muted'>Se l’iPhone non ricarica: prova un altro cavo/alimentatore; ispeziona la porta per polvere; prova ricarica wireless.</p>
-    </div>`);
-    openSheet('Porta di ricarica', body);
-    body.querySelector('#ok').onclick = ()=>{ mark('charging','ok'); closeSheet(); }
-    body.querySelector('#clean').onclick = ()=>{ mark('charging','warn'); closeSheet(); }
-  },
-
-  wireless(){
-    const body = el(`<div>
-      <p>Verifica la connettività eseguendo piccoli test di rete.</p>
-      <div class='row wrap'>
-        <button class='btn' id='run'>Esegui test</button>
-        <button class='btn' id='pass'>Segna come OK</button>
-      </div>
-      <div class='field'>
-        <label class='small'>Risultati</label>
-        <div id='netOut' class='small'></div>
-      </div>
-    </div>`);
-    openSheet('Modulo wireless', body);
-    const out = body.querySelector('#netOut');
-    async function pingOnce(url){
-      const t0=performance.now();
-      try{ await fetch(url,{mode:'no-cors',cache:'no-store'}); return (performance.now()-t0) }catch(e){ return NaN }
-    }
-    body.querySelector('#run').onclick = async ()=>{
-      out.textContent = 'Eseguo test...';
-      const urls = ['https://www.apple.com','https://www.icloud.com','https://example.com'];
-      const res = [];
-      for(const u of urls){ const d = await pingOnce(u); res.push({u, ms: isNaN(d)? 'errore' : Math.round(d)+' ms'}) }
-      out.innerHTML = res.map(r=>`• ${r.u} → <b>${r.ms}</b>`).join('<br>');
-    }
-    body.querySelector('#pass').onclick = ()=>{ mark('wireless','ok'); closeSheet(); }
-  },
-
-  touch(){
-    const body = el(`<div>
-      <p>Traccia il dito per colorare tutte le celle. Quando la griglia è completa il test passa.</p>
-      <canvas id='touchCanvas' width='340' height='400'></canvas>
-      <div class='row wrap' style='margin-top:8px'>
-        <button class='btn' id='reset'>Reset</button>
-      </div>
-    </div>`);
-    openSheet('Touch screen', body);
-
-    const cvs = body.querySelector('#touchCanvas'); const ctx = cvs.getContext('2d');
-    const cols = 6, rows = 8; const cellW = cvs.width/cols, cellH = cvs.height/rows;
-    let filled = Array(rows).fill(0).map(()=>Array(cols).fill(false));
-    function draw(){ ctx.clearRect(0,0,cvs.width,cvs.height); ctx.strokeStyle='#2a3046'; for(let y=0;y<rows;y++){ for(let x=0;x<cols;x++){ const fx= x*cellW, fy=y*cellH; if(filled[y][x]){ ctx.fillStyle = '#1f8b4c'; ctx.fillRect(fx+1,fy+1,cellW-2,cellH-2)} ctx.strokeRect(fx+0.5,fy+0.5,cellW,cellH)} }
-    }
-    function setFillAt(x,y){ const cx=Math.floor(x/cellW), cy=Math.floor(y/cellH); if(cx>=0&&cy>=0&&cx<cols&&cy<rows){ filled[cy][cx]=true; draw(); checkDone(); } }
-    function pointer(e){ const rect=cvs.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-rect.top; setFillAt(x,y); }
-    cvs.addEventListener('pointerdown',pointer); cvs.addEventListener('pointermove', e=>{ if(e.buttons) pointer(e)}); cvs.addEventListener('touchstart', pointer, {passive:true}); cvs.addEventListener('touchmove', pointer, {passive:true});
-    function checkDone(){ const all = filled.every(r=>r.every(Boolean)); if(all){ mark('touch','ok'); setTimeout(closeSheet, 400);} }
-    body.querySelector('#reset').onclick = ()=>{ filled = Array(rows).fill(0).map(()=>Array(cols).fill(false)); draw(); }
-    draw();
-  },
-
-  camera(){
-    const body = el(`<div>
-      <p>Prova tutte le fotocamere disponibili. Concedi l’accesso, cambia camera dall’elenco e verifica anteprima e scatto.</p>
-      <div class='row wrap'>
-        <select id='cams'></select>
-        <button class='btn' id='start'>Avvia</button>
-        <button class='btn' id='snap'>Scatta</button>
-        <button class='btn' id='ok'>Segna come OK</button>
-      </div>
-      <video id='vid' playsinline autoplay muted></video>
-      <canvas id='shot' width='0' height='0'></canvas>
-      <div class='small muted'>Suggerimento: prova grandangolo, principale, tele, macro e anteriore (se disponibili).</div>
-    </div>`);
-    openSheet('Fotocamere', body);
-    const sel = body.querySelector('#cams'); const vid = body.querySelector('#vid'); const cnv = body.querySelector('#shot');
-    let stream;
-    async function listCams(){ try{ await navigator.mediaDevices.getUserMedia({video:true}); }catch(e){}
-      const devs = await navigator.mediaDevices.enumerateDevices();
-      const cams = devs.filter(d=>d.kind==='videoinput'); sel.innerHTML='';
-      cams.forEach((c,i)=>{ const opt=document.createElement('option'); opt.value=c.deviceId; opt.textContent=c.label||('Fotocamera '+(i+1)); sel.appendChild(opt)});
-    }
-    async function start(){ if(stream){ stream.getTracks().forEach(t=>t.stop()) }
-      const id = sel.value; const constraints = {video: id? {deviceId:{exact:id}} : {facingMode:'environment'}};
-      try{ stream = await navigator.mediaDevices.getUserMedia(constraints); vid.srcObject=stream; }catch(e){ alert('Accesso fotocamera negato.'); }
-    }
-    body.querySelector('#start').onclick = start; body.querySelector('#ok').onclick = ()=>{ mark('camera','ok'); if(stream) stream.getTracks().forEach(t=>t.stop()); closeSheet(); }
-    body.querySelector('#snap').onclick = ()=>{ if(!vid.videoWidth) return; cnv.width=vid.videoWidth; cnv.height=vid.videoHeight; cnv.getContext('2d').drawImage(vid,0,0); }
-    listCams();
-  },
-
-  logs(){
-    const body = el(`<div>
-      <p>Opzionale: carica un file di log iOS (Impostazioni → Privacy e sicurezza → Analisi e miglioramenti → Dati analisi) per cercare errori noti.</p>
-      <input type='file' id='file' accept='.txt,.log,.ips' />
-      <div class='field'><label class='small'>Esiti</label><pre id='out' style='white-space:pre-wrap;background:#0b0f1a;padding:10px;border-radius:10px;border:1px solid #2a3046;max-height:40vh;overflow:auto'></pre></div>
-      <div class='row wrap'>
-        <button class='btn' id='ok'>Nessun problema rilevante</button>
-      </div>
-    </div>`);
-    openSheet('Log & crash', body);
-    const out = body.querySelector('#out');
-    body.querySelector('#file').addEventListener('change', async (e)=>{
-      const f = e.target.files[0]; if(!f) return; const txt = await f.text();
-      const patterns = ['panic','jetsam','lowmemory','thermal','baseband','shutdown cause','CPU Panic'];
-      let hits = [];
-      patterns.forEach(p=>{ const re = new RegExp(p,'ig'); let m; while((m=re.exec(txt))){ hits.push({pattern:p, index:m.index}) } });
-      if(!hits.length){ out.textContent = 'Nessun pattern critico trovato.'; mark('logs','ok'); }
-      else{
-        out.textContent = 'Trovati '+hits.length+' riferimenti potenzialmente critici (controllare con un tecnico):\n' + hits.map(h=>`- ${h.pattern} @ ${h.index}`).join('\n');
-        mark('logs','warn');
-      }
-    })
-    body.querySelector('#ok').onclick = ()=>{ mark('logs','ok'); closeSheet(); }
-  },
-
-  battery(){
-    const body = el(`<div>
-      <p>Safari su iOS non espone livello e salute batteria. Inserisci manualmente i dati da <span class='kbd'>Impostazioni → Batteria → Stato batteria</span>.</p>
-      <div class='row wrap'>
-        <div class='field' style='flex:1'>
-          <label class='small'>Capacità massima (%)</label>
-          <input id='cap' type='number' inputmode='numeric' placeholder='es. 100' min='50' max='110' />
-        </div>
-        <div class='field' style='flex:1'>
-          <label class='small'>Cicli (se noto)</label>
-          <input id='cycles' type='number' inputmode='numeric' placeholder='—' />
-        </div>
-      </div>
-      <div class='row wrap'>
-        <button class='btn' id='ok'>Salva & OK</button>
-      </div>
-    </div>`);
-    openSheet('Stato batteria', body);
-    const cap = body.querySelector('#cap'); const cycles = body.querySelector('#cycles');
-    if(state.battery){ cap.value=state.battery.cap||''; cycles.value=state.battery.cycles||''; }
-    body.querySelector('#ok').onclick = ()=>{ setState({battery:{cap:cap.value, cycles:cycles.value},}); mark('battery','ok'); closeSheet(); }
-  },
-
-  storage(){
-    const body = el(`<div>
-      <p>Stima quota/uso storage del browser (non l’intero iPhone). Per capacità dispositivo, vedi <span class='kbd'>Impostazioni → Generali → Spazio iPhone</span>.</p>
-      <div class='row wrap'>
-        <button class='btn' id='run'>Calcola</button>
-        <button class='btn' id='ok'>Segna come OK</button>
-      </div>
-      <div class='field'><label class='small'>Risultato</label><div id='out' class='small'></div></div>
-    </div>`);
-    openSheet('Memoria interna', body);
-    const out = body.querySelector('#out');
-    body.querySelector('#run').onclick = async ()=>{
-      if(navigator.storage && navigator.storage.estimate){ const est = await navigator.storage.estimate(); out.innerHTML = `Quota stimata: <b>${fmt(est.quota||0)}</b><br>In uso: <b>${fmt(est.usage||0)}</b>`; }
-      else{ out.textContent = 'API non disponibile su questo browser.' }
-    }
-    body.querySelector('#ok').onclick = ()=>{ mark('storage','ok'); closeSheet(); }
-  },
-
-  device(){
-    const body = el(`<div>
-      <p>I browser non possono leggere modello e numero di serie. Indicali manualmente.</p>
-      <div class='row wrap'>
-        <div class='field' style='flex:1'>
-          <label class='small'>Modello (es. iPhone 15 Pro)</label>
-          <input id='model' placeholder='iPhone …' />
-        </div>
-        <div class='field' style='flex:1'>
-          <label class='small'>Numero di serie</label>
-          <input id='sn' placeholder='—' />
-        </div>
-      </div>
-      <div class='field'>
-        <label class='small'>Info browser</label>
-        <textarea rows='3' readonly>${navigator.userAgent}</textarea>
-      </div>
-      <div class='row wrap'>
-        <button class='btn' id='save'>Salva</button>
-        <button class='btn' id='ok'>Segna come OK</button>
-        <a class='btn' href='app-settings:/' style='text-decoration:none'>Apri Impostazioni</a>
-      </div>
-    </div>`);
-    openSheet('Info dispositivo', body);
-    const model = body.querySelector('#model'); const sn = body.querySelector('#sn');
-    if(state.device){ model.value=state.device.model||''; sn.value=state.device.sn||''; }
-    body.querySelector('#save').onclick = ()=>{ setState({device:{model:model.value, sn:sn.value}}) }
-    body.querySelector('#ok').onclick = ()=>{ mark('device','ok'); closeSheet(); }
-  }
+  buttons(){ const body = el(`<div><p>Premi in sequenza <span class='kbd'>Volume +</span>, <span class='kbd'>Volume −</span> e il tasto laterale. I browser non possono leggere questi eventi su iPhone, quindi conferma manualmente.</p><div class='row wrap'><button class='btn' id='ok'>Tasti funzionanti</button><button class='btn' id='warn'>Non sicuro</button></div><p class='small muted'>Suggerimento: prova anche il cursore Suoneria/Silenzioso se presente.</p></div>`); openSheet('Tasti fisici', body); body.querySelector('#ok').onclick=()=>{mark('buttons','ok'); closeSheet();}; body.querySelector('#warn').onclick=()=>{mark('buttons','warn'); closeSheet();}; },
+  charging(){ const body=el(`<div><p>Collega il cavo di ricarica e verifica la comparsa dell’icona ⚡︎. I browser su iOS non espongono lo stato batteria, quindi la conferma è manuale.</p><div class='row wrap'><button class='btn' id='ok'>Ricarica OK</button><button class='btn' id='clean'>Porta da pulire</button></div><p class='small muted'>Se non ricarica: prova altro cavo/alimentatore; ispeziona la porta; prova ricarica wireless.</p></div>`); openSheet('Porta di ricarica', body); body.querySelector('#ok').onclick=()=>{mark('charging','ok'); closeSheet();}; body.querySelector('#clean').onclick=()=>{mark('charging','warn'); closeSheet();}; },
+  wireless(){ const body=el(`<div><p>Verifica la connettività eseguendo piccoli test di rete.</p><div class='row wrap'><button class='btn' id='run'>Esegui test</button><button class='btn' id='pass'>Segna come OK</button></div><div class='field'><label class='small'>Risultati</label><div id='netOut' class='small'></div></div></div>`); openSheet('Modulo wireless', body); const out=body.querySelector('#netOut'); async function pingOnce(url){ const t0=performance.now(); try{ await fetch(url,{mode:'no-cors',cache:'no-store'}); return (performance.now()-t0) }catch(e){ return NaN }} body.querySelector('#run').onclick = async()=>{ out.textContent='Eseguo test...'; const urls=['https://www.apple.com','https://www.icloud.com','https://example.com']; const res=[]; for(const u of urls){ const d=await pingOnce(u); res.push({u, ms:isNaN(d)?'errore':Math.round(d)+' ms'}) } out.innerHTML=res.map(r=>`• ${r.u} → <b>${r.ms}</b>`).join('<br>'); }; body.querySelector('#pass').onclick=()=>{mark('wireless','ok'); closeSheet();}; },
+  touch(){ const body=el(`<div><p>Traccia il dito per colorare tutte le celle. Quando la griglia è completa il test passa.</p><canvas id='touchCanvas' width='340' height='400'></canvas><div class='row wrap' style='margin-top:8px'><button class='btn' id='reset'>Reset</button></div></div>`); openSheet('Touch screen', body); const cvs=body.querySelector('#touchCanvas'); const ctx=cvs.getContext('2d'); const cols=6, rows=8; const cellW=cvs.width/cols, cellH=cvs.height/rows; let filled=Array(rows).fill(0).map(()=>Array(cols).fill(false)); function draw(){ ctx.clearRect(0,0,cvs.width,cvs.height); ctx.strokeStyle='#d0d5e4'; for(let y=0;y<rows;y++){ for(let x=0;x<cols;x++){ const fx=x*cellW, fy=y*cellH; if(filled[y][x]){ ctx.fillStyle='#d1fae5'; ctx.fillRect(fx+1,fy+1,cellW-2,cellH-2)} ctx.strokeRect(fx+0.5,fy+0.5,cellW,cellH)} } } function setFillAt(x,y){ const cx=Math.floor(x/cellW), cy=Math.floor(y/cellH); if(cx>=0&&cy>=0&&cx<cols&&cy<rows){ filled[cy][cx]=true; draw(); checkDone(); } } function pointer(e){ const rect=cvs.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-rect.top; setFillAt(x,y); } cvs.addEventListener('pointerdown',pointer); cvs.addEventListener('pointermove', e=>{ if(e.buttons) pointer(e)}); cvs.addEventListener('touchstart', pointer, {passive:true}); cvs.addEventListener('touchmove', pointer, {passive:true}); function checkDone(){ const all=filled.every(r=>r.every(Boolean)); if(all){ mark('touch','ok'); setTimeout(closeSheet, 400);} } body.querySelector('#reset').onclick=()=>{ filled=Array(rows).fill(0).map(()=>Array(cols).fill(false)); draw(); }; draw(); },
+  camera(){ const body=el(`<div><p>Prova tutte le fotocamere disponibili. Concedi l’accesso, cambia camera dall’elenco e verifica anteprima e scatto.</p><div class='row wrap'><select id='cams'></select><button class='btn' id='start'>Avvia</button><button class='btn' id='snap'>Scatta</button><button class='btn' id='ok'>Segna come OK</button></div><video id='vid' playsinline autoplay muted></video><canvas id='shot' width='0' height='0'></canvas><div class='small muted'>Suggerimento: prova grandangolo, principale, tele, macro e anteriore (se disponibili).</div></div>`); openSheet('Fotocamere', body); const sel=body.querySelector('#cams'); const vid=body.querySelector('#vid'); const cnv=body.querySelector('#shot'); let stream; async function listCams(){ try{ await navigator.mediaDevices.getUserMedia({video:true}); }catch(e){} const devs=await navigator.mediaDevices.enumerateDevices(); const cams=devs.filter(d=>d.kind==='videoinput'); sel.innerHTML=''; cams.forEach((c,i)=>{ const opt=document.createElement('option'); opt.value=c.deviceId; opt.textContent=c.label||('Fotocamera '+(i+1)); sel.appendChild(opt)});} async function start(){ if(stream){ stream.getTracks().forEach(t=>t.stop()) } const id=sel.value; const constraints={video: id? {deviceId:{exact:id}} : {facingMode:'environment'}}; try{ stream=await navigator.mediaDevices.getUserMedia(constraints); vid.srcObject=stream; }catch(e){ alert('Accesso fotocamera negato.'); } } body.querySelector('#start').onclick=start; body.querySelector('#ok').onclick=()=>{ mark('camera','ok'); if(stream) stream.getTracks().forEach(t=>t.stop()); closeSheet(); }; body.querySelector('#snap').onclick=()=>{ if(!vid.videoWidth) return; cnv.width=vid.videoWidth; cnv.height=vid.videoHeight; cnv.getContext('2d').drawImage(vid,0,0); }; listCams(); },
+  logs(){ const body=el(`<div><p>Opzionale: carica un file di log iOS (Impostazioni → Privacy e sicurezza → Analisi e miglioramenti → Dati analisi) per cercare errori noti.</p><input type='file' id='file' accept='.txt,.log,.ips' /><div class='field'><label class='small'>Esiti</label><pre id='out' style='white-space:pre-wrap;background:#fff;padding:10px;border-radius:10px;border:1px solid var(--border);max-height:40vh;overflow:auto'></pre></div><div class='row wrap'><button class='btn' id='ok'>Nessun problema rilevante</button></div></div>`); openSheet('Log & crash', body); const out=body.querySelector('#out'); body.querySelector('#file').addEventListener('change', async (e)=>{ const f=e.target.files[0]; if(!f) return; const txt=await f.text(); const patterns=['panic','jetsam','lowmemory','thermal','baseband','shutdown cause','CPU Panic']; let hits=[]; patterns.forEach(p=>{ const re=new RegExp(p,'ig'); let m; while((m=re.exec(txt))){ hits.push({pattern:p, index:m.index}) } }); if(!hits.length){ out.textContent='Nessun pattern critico trovato.'; mark('logs','ok'); } else { out.textContent='Trovati '+hits.length+' riferimenti potenzialmente critici (controllare con un tecnico):\n'+hits.map(h=>`- ${h.pattern} @ ${h.index}`).join('\n'); mark('logs','warn'); } }); body.querySelector('#ok').onclick=()=>{ mark('logs','ok'); closeSheet(); }; },
+  battery(){ const body=el(`<div><p>Safari su iOS non espone livello e salute batteria. Inserisci manualmente i dati da <span class='kbd'>Impostazioni → Batteria → Stato batteria</span>.</p><div class='row wrap'><div class='field' style='flex:1'><label class='small'>Capacità massima (%)</label><input id='cap' type='number' inputmode='numeric' placeholder='es. 100' min='50' max='110' /></div><div class='field' style='flex:1'><label class='small'>Cicli (se noto)</label><input id='cycles' type='number' inputmode='numeric' placeholder='—' /></div></div><div class='row wrap'><button class='btn' id='ok'>Salva & OK</button></div></div>`); openSheet('Stato batteria', body); const cap=body.querySelector('#cap'); const cycles=body.querySelector('#cycles'); if(state.battery){ cap.value=state.battery.cap||''; cycles.value=state.battery.cycles||''; } body.querySelector('#ok').onclick=()=>{ setState({battery:{cap:cap.value, cycles:cycles.value}}); mark('battery','ok'); closeSheet(); }; },
+  storage(){ const body=el(`<div><p>Stima quota/uso storage del browser (non l’intero iPhone). Per capacità dispositivo, vedi <span class='kbd'>Impostazioni → Generali → Spazio iPhone</span>.</p><div class='row wrap'><button class='btn' id='run'>Calcola</button><button class='btn' id='ok'>Segna come OK</button></div><div class='field'><label class='small'>Risultato</label><div id='out' class='small'></div></div></div>`); openSheet('Memoria interna', body); const out=body.querySelector('#out'); body.querySelector('#run').onclick=async()=>{ if(navigator.storage && navigator.storage.estimate){ const est=await navigator.storage.estimate(); out.innerHTML=`Quota stimata: <b>${fmt(est.quota||0)}</b><br>In uso: <b>${fmt(est.usage||0)}</b>`; } else { out.textContent='API non disponibile su questo browser.' } }; body.querySelector('#ok').onclick=()=>{ mark('storage','ok'); closeSheet(); }; },
+  device(){ const body=el(`<div><p>I browser non possono leggere modello e numero di serie. Indicali manualmente.</p><div class='row wrap'><div class='field' style='flex:1'><label class='small'>Modello (es. iPhone 15 Pro)</label><input id='model' placeholder='iPhone …' /></div><div class='field' style='flex:1'><label class='small'>Numero di serie</label><input id='sn' placeholder='—' /></div></div><div class='field'><label class='small'>Info browser</label><textarea rows='3' readonly>${navigator.userAgent}</textarea></div><div class='row wrap'><button class='btn' id='save'>Salva</button><button class='btn' id='ok'>Segna come OK</button><a class='btn' href='app-settings:/' style='text-decoration:none'>Apri Impostazioni</a></div></div>`); openSheet('Info dispositivo', body); const model=body.querySelector('#model'); const sn=body.querySelector('#sn'); if(state.device){ model.value=state.device.model||''; sn.value=state.device.sn||''; } body.querySelector('#save').onclick=()=>{ setState({device:{model:model.value, sn:sn.value}}) }; body.querySelector('#ok').onclick=()=>{ mark('device','ok'); closeSheet(); }; }
 }
 
-// --- Export ---
+// --- Scoring & QR ---
+function computeScore(){
+  const keys=['audio','buttons','charging','wireless','touch','camera','logs','battery','storage','device'];
+  let pts=0, tot=keys.length; keys.forEach(k=>{ const s=(state[k]||{}).status; if(k==='battery'){ if(state.battery?.cap) pts+=1; return;} if(s==='ok') pts+=1; else if(s==='warn') pts+=0.5; });
+  const pct = Math.round((pts/tot)*100);
+  let verdict = pct>=90? 'Eccellente' : pct>=75? 'Buono' : pct>=60? 'Discreto' : 'Da rivedere';
+  return {points:pts, total:tot, percent:pct, verdict};
+}
+
+// Pseudo-QR: genera un pattern deterministico dai dati (per demo/offline). In produzione sostituisci con una libreria QR.
+function makePseudoQR(text, size=192){
+  const c=document.createElement('canvas'); c.width=c.height=size; const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,size,size); g.fillStyle='#000';
+  let seed=0; for(let i=0;i<text.length;i++){ seed=(seed*31 + text.charCodeAt(i))>>>0 }
+  const cells=33, step=size/cells; for(let y=0;y<cells;y++){ for(let x=0;x<cells;x++){ seed=(seed*1103515245+12345)&0x7fffffff; if((seed>>>16)&1){ g.fillRect(Math.floor(x*step),Math.floor(y*step),Math.ceil(step-1),Math.ceil(step-1)) } } }
+  return c;
+}
+
+function showFinalize(){
+  const score = computeScore();
+  const report = assembleReport();
+  const node = el(`
+    <div>
+      <p>Risultato complessivo dei test.</p>
+      <div class='row wrap' style='gap:8px'>
+        <div class='badge'>Punteggio: <b>${score.percent}%</b> (${score.verdict})</div>
+        <div class='badge'>Test superati: <b>${score.points.toFixed(1)}</b>/<b>${score.total}</b></div>
+      </div>
+      <div class='field'><label class='small'>QR per firma digitale del cliente</label>
+        <div class='qrWrap'>
+          <div id='qrBox'></div>
+          <div class='small muted'>Il QR codifica il report (JSON) per archiviazione o firma. Scansiona e salva.</div>
+        </div>
+      </div>
+    </div>`);
+  openSheet('Esito & QR', node);
+  const box = node.querySelector('#qrBox');
+  const canvas = makePseudoQR(JSON.stringify(report));
+  canvas.className='qr'; box.appendChild(canvas);
+}
+
+// --- Export & report ---
 function assembleReport(){
   return {
     timestamp: new Date().toISOString(),
@@ -465,24 +282,24 @@ function assembleReport(){
 function download(name, content, mime){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type:mime})); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
 
 function asTxt(obj){
-  let out = `iPhone Check Tool — Report\n${new Date().toLocaleString()}\n\n`;
+  const score = computeScore();
+  let out = `2M Digital Consulting — iPhone Check Tool — Report\n${new Date().toLocaleString()}\n\n`;
   out += `Dispositivo: ${obj.device.model||'—'}  SN: ${obj.device.sn||'—'}\n`;
   out += `\nEsiti test:\n`;
   const map = {audio:'Audio/Microfono', buttons:'Tasti', charging:'Ricarica', wireless:'Wireless', touch:'Touch', camera:'Fotocamere', logs:'Log', storage:'Memoria', deviceInfoStatus:'Info dispositivo'};
   Object.entries(obj.results).forEach(([k,v])=>{ if(k==='battery') return; out += `- ${map[k]||k}: ${v||'—'}\n` })
   out += `\nBatteria: capacità max ${obj.results?.battery?.cap||'—'}%  cicli ${obj.results?.battery?.cycles||'—'}\n`;
   out += `\nNote:\n${obj.notes||''}\n`;
+  out += `\nPunteggio complessivo: ${score.percent}% (${score.verdict})\n`;
   return out;
 }
 
-// Buttons
- document.getElementById('exportTxt').onclick = ()=>{ const r=assembleReport(); download('iphone-check-report.txt', asTxt(r), 'text/plain') }
- document.getElementById('exportJson').onclick = ()=>{ const r=assembleReport(); download('iphone-check-data.json', JSON.stringify(r,null,2), 'application/json') }
- document.getElementById('print').onclick = ()=>{ window.print() }
+document.getElementById('exportTxt').onclick = ()=>{ const r=assembleReport(); download('iphone-check-report.txt', asTxt(r), 'text/plain') }
+document.getElementById('exportJson').onclick = ()=>{ const r=assembleReport(); download('iphone-check-data.json', JSON.stringify(r,null,2), 'application/json') }
+document.getElementById('print').onclick = ()=>{ window.print() }
+document.getElementById('finalize').onclick = showFinalize;
 
-// Init
 refreshStatuses();
 </script>
-
 </body>
 </html>
