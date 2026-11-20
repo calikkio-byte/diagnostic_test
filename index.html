@@ -4,302 +4,869 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="iPhone Check" />
+<meta name="theme-color" content="#f4f6fb" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)" />
+<meta name="description" content="Verifica rapida post-acquisto di un iPhone: 14 controlli guidati, report con QR, firma e PDF. Funziona offline." />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<link rel="icon" type="image/png" href="icons/icon-192.png" />
 <title>2M Digital Consulting — iPhone Check Tool</title>
 <style>
-  :root{--bg:#f7f8fb;--card:#ffffff;--muted:#5c6475;--text:#0f172a;--ok:#16a34a;--warn:#f59e0b;--bad:#ef4444;--accent:#2563eb;--border:#e5e7eb}
-  html,body{height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;}
-  .container{max-width:880px;margin:0 auto;padding:clamp(12px,2vw,20px);padding-bottom:108px;}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:16px}
-  h1{font-size:20px;margin:0;}
+  :root{
+    color-scheme:light dark;
+    --bg:#f4f6fb;--card:#ffffff;--muted:#5c6475;--text:#0f172a;--border:#e3e7ef;--soft:#eef1f8;
+    --ok:#15803d;--warn:#b45309;--bad:#dc2626;--accent:#2563eb;--accent2:#22d3ee;
+    --shadow:0 6px 20px rgba(15,23,42,.06);--safe-b:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0b1020;--card:#141b30;--muted:#98a2bd;--text:#e9edf8;--border:#26314e;--soft:#1b2440;
+      --ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--accent:#60a5fa;--shadow:0 6px 20px rgba(0,0,0,.35)}
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;touch-action:manipulation}
+  button,input,select,textarea{font:inherit;color:inherit}
+  .container{max-width:880px;margin:0 auto;padding:max(12px,env(safe-area-inset-top)) max(clamp(12px,2vw,20px),env(safe-area-inset-right)) calc(138px + var(--safe-b)) max(clamp(12px,2vw,20px),env(safe-area-inset-left))}
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:16px}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0}
+  h1{font-size:17px;line-height:1.2;margin:0}
+  h2{margin:0;font-size:18px}
+  h3{margin:0}
   .sub{font-size:12px;color:var(--muted)}
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
-  .tile{background:var(--card);border:1px solid var(--border);border-radius:16px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.06);position:relative;}
-  .tile button{all:unset;position:absolute;inset:0;cursor:pointer;border-radius:16px}
-  .tile h3{margin:0;font-size:14px;text-align:center}
-  .status{height:10px;width:10px;border-radius:50%;background:#c7cad6;box-shadow:0 0 0 3px rgba(0,0,0,.04) inset}
-  .status.ok{background:var(--ok)}
-  .status.warn{background:var(--warn)}
-  .status.bad{background:var(--bad)}
-  .pill{font-size:10px;color:var(--muted)}
-  .bar{height:8px;background:#eef1f8;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
-  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#22d3ee)}
-  .footer{position:fixed;inset:auto 0 0;backdrop-filter:blur(8px);background:rgba(255,255,255,.85);border-top:1px solid var(--border);padding:10px}
-  .footer .row{display:flex;gap:8px;flex-wrap:wrap}
-  .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#ffffff;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:12px;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media (min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
+  .tile{appearance:none;text-align:left;cursor:pointer;position:relative;display:flex;flex-direction:column;gap:4px;min-height:124px;padding:14px 12px 12px;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);transition:transform .08s}
+  .tile:active{transform:scale(.98)}
+  .tile:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}
+  .tile .ic{font-size:26px;line-height:1;margin-top:18px}
+  .tile h3{font-size:14px}
+  .pill{font-size:11px;color:var(--muted)}
+  .chip{position:absolute;top:9px;left:12px;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--muted)}
+  .chip i{font-style:normal;display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--soft);font-size:10px}
+  .tile[data-s=ok] .chip{color:var(--ok)} .tile[data-s=ok] .chip i{background:var(--ok);color:#fff}
+  .tile[data-s=warn] .chip{color:var(--warn)} .tile[data-s=warn] .chip i{background:var(--warn);color:#fff}
+  .tile[data-s=bad] .chip{color:var(--bad)} .tile[data-s=bad] .chip i{background:var(--bad);color:#fff}
+  .tile[data-s=ok]{border-color:color-mix(in srgb,var(--ok) 45%,var(--border))}
+  .tile[data-s=warn]{border-color:color-mix(in srgb,var(--warn) 55%,var(--border))}
+  .tile[data-s=bad]{border-color:color-mix(in srgb,var(--bad) 60%,var(--border))}
+  .bar{height:8px;background:var(--soft);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s}
+  .footer{position:fixed;inset:auto 0 0;z-index:20;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:color-mix(in srgb,var(--card) 88%,transparent);border-top:1px solid var(--border);padding:10px max(10px,env(safe-area-inset-right)) calc(8px + var(--safe-b)) max(10px,env(safe-area-inset-left))}
+  .footer .row{max-width:880px;margin:0 auto 6px}
+  .btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:1 1 auto;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 10px;border-radius:12px;font-weight:600;cursor:pointer;text-decoration:none;min-height:44px}
   .btn:active{transform:scale(.98)}
-  .badge{display:inline-flex;align-items:center;gap:6px;background:#ffffff;border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px}
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end}
-  .sheet{background:#fff;border-top-left-radius:18px;border-top-right-radius:18px;max-height:85vh;overflow:auto;width:100%;padding:16px;border-top:1px solid var(--border)}
-  .sheet h2{margin:0 0 6px;font-size:18px}
-  .sheet p{color:var(--muted);font-size:14px;}
-  .row{display:flex;gap:10px;align-items:center}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),#0891b2);border-color:transparent;color:#fff}
+  .btn.grow{flex:2 1 0}
+  .btn.ok{border-color:var(--ok);color:var(--ok)} .btn.warn{border-color:var(--warn);color:var(--warn)} .btn.bad{border-color:var(--bad);color:var(--bad)}
+  .btn.suggest{box-shadow:0 0 0 3px color-mix(in srgb,currentColor 30%,transparent);background:color-mix(in srgb,currentColor 10%,var(--card))}
+  .btn.ghost{background:transparent;color:var(--muted)}
+  .btn[disabled]{opacity:.5}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px}
+  .modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;overscroll-behavior:contain}
+  .sheet{background:var(--card);border-top-left-radius:18px;border-top-right-radius:18px;max-height:92dvh;max-height:92vh;overflow:auto;overscroll-behavior:contain;width:100%;max-width:880px;padding:0 16px calc(16px + var(--safe-b));border-top:1px solid var(--border)}
+  @supports (height:1dvh){.sheet{max-height:92dvh}}
+  .sheet-head{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 0 10px;background:var(--card)}
+  .sheet p{color:var(--muted);font-size:14px;margin:6px 0 10px}
+  .row{display:flex;gap:8px;align-items:center}
   .row.wrap{flex-wrap:wrap}
+  .center{text-align:center}
   .field{display:flex;flex-direction:column;gap:6px;margin:8px 0}
-  .field input,.field select,.field textarea{background:#ffffff;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px;font-size:14px}
+  .field input,.field select,.field textarea,select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:16px;width:100%;min-height:44px}
+  .field.half{flex:1 1 140px;min-width:0}
+  select{width:auto;flex:1 1 140px}
   video,canvas{max-width:100%;border-radius:12px;border:1px solid var(--border)}
-  .link{color:#0b63ff}
-  .small{font-size:12px;color:var(--muted)}
-  .kbd{background:#fff;border:1px solid var(--border);border-bottom-width:3px;padding:2px 6px;border-radius:6px;font-weight:700}
-  .muted{color:var(--muted)}
-  .qrWrap{display:flex;flex-direction:column;align-items:center;gap:8px}
-  canvas.qr{border:1px solid var(--border);background:#fff;border-radius:10px}
+  video{width:100%;background:#000;margin-top:8px}
+  .small{font-size:12px;color:var(--muted)} .muted{color:var(--muted)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap}
+  .kbd{background:var(--card);border:1px solid var(--border);border-bottom-width:3px;padding:1px 6px;border-radius:6px;font-weight:700;font-size:13px}
+  a{color:var(--accent)}
+  .checks label{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--border);border-radius:12px;margin:6px 0;font-size:14px;cursor:pointer}
+  .checks input{width:22px;height:22px;flex:none;margin:0;accent-color:var(--accent)}
+  .resultbar{margin-top:14px;padding-top:12px;border-top:1px dashed var(--border)}
+  .tip{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;font-size:13px;background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:14px;padding:10px 12px;margin-bottom:12px}
+  .tip[hidden]{display:none}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .tbl td,.tbl th{padding:6px 4px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+  .st{font-weight:700;white-space:nowrap} .st.ok{color:var(--ok)} .st.warn{color:var(--warn)} .st.bad{color:var(--bad)} .st.none{color:var(--muted)}
+  .sig{width:100%;height:150px;background:#fff;touch-action:none;cursor:crosshair}
+  .level{position:relative;width:170px;height:170px;margin:10px auto;border:2px solid var(--border);border-radius:50%;background:var(--soft)}
+  .level::before,.level::after{content:"";position:absolute;background:var(--border)}
+  .level::before{left:50%;top:0;bottom:0;width:1px}.level::after{top:50%;left:0;right:0;height:1px}
+  .level i{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:var(--accent);left:50%;top:50%;transition:left .08s,top .08s}
+  .hrow{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--border)}
+  .hrow .btn{flex:0 0 auto;padding:8px 10px;min-height:36px;font-size:13px}
+  #toast{position:fixed;left:50%;bottom:calc(120px + var(--safe-b));transform:translateX(-50%) translateY(20px);z-index:90;background:#0f172a;color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;max-width:90vw;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%)}
+  #colorOverlay{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0 0 calc(24px + var(--safe-b));cursor:pointer;touch-action:manipulation}
+  #colorOverlay span{font-size:13px;color:#fff;mix-blend-mode:difference;font-weight:600}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  #printReport{display:none}
+  @media print{
+    :root{color-scheme:light}
+    html,body{background:#fff!important;color:#000!important}
+    .container,.footer,.modal,#toast,#colorOverlay{display:none!important}
+    #printReport{display:block;font:12px/1.4 ui-sans-serif,system-ui,-apple-system,Arial,sans-serif;color:#000}
+    #printReport h1{font-size:20px;margin:0}
+    #printReport .ph{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2563eb;padding-bottom:8px;margin-bottom:10px}
+    #printReport table{width:100%;border-collapse:collapse;margin:8px 0}
+    #printReport td,#printReport th{border-bottom:1px solid #ddd;padding:5px 4px;text-align:left;vertical-align:top}
+    #printReport .st.ok{color:#15803d}#printReport .st.warn{color:#b45309}#printReport .st.bad{color:#dc2626}#printReport .st.none{color:#666}
+    #printReport .pf{display:flex;gap:24px;align-items:flex-end;margin-top:14px;page-break-inside:avoid}
+    #printReport .pf>div{flex:1}
+    #printReport img{max-width:100%}
+    #printReport .legal{font-size:10px;color:#555;margin-top:14px}
+    @page{margin:14mm}
+  }
 </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div class="row" style="gap:10px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <!-- Inline brand logo -->
-          <svg width="36" height="36" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect rx="14" ry="14" x="6" y="6" width="52" height="52" fill="url(#g)"/><text x="32" y="40" text-anchor="middle" font-size="26" fill="#fff" font-family="ui-sans-serif,system-ui">2M</text></svg>
-          <div>
-            <h1>2M Digital Consulting — iPhone Check Tool</h1>
-            <div class="sub">Verifica rapida post‑acquisto – ottimizzato per iPhone</div>
-          </div>
+      <div class="brand">
+        <svg width="36" height="36" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect rx="14" ry="14" x="6" y="6" width="52" height="52" fill="url(#g)"/><text x="32" y="40" text-anchor="middle" font-size="26" fill="#fff" font-family="ui-sans-serif,system-ui">2M</text></svg>
+        <div>
+          <h1>2M Digital Consulting — iPhone Check Tool</h1>
+          <div class="sub">Verifica rapida post‑acquisto – ottimizzato per iPhone</div>
         </div>
       </div>
-      <div class="badge" id="deviceBadge">Dispositivo: <span id="deviceName">—</span></div>
+      <div class="badge">Dispositivo: <b id="deviceName">—</b></div>
     </header>
 
-    <div class="grid" id="grid">
-      <div class="tile" data-test="audio">
-        <div class="status" id="status-audio"></div>
-        <h3>Audio & Microfono</h3>
-        <div class="pill">tono + meter</div>
-        <button aria-label="Apri test Audio"></button>
-      </div>
-      <div class="tile" data-test="buttons">
-        <div class="status" id="status-buttons"></div>
-        <h3>Tasti fisici</h3>
-        <div class="pill">Volume/Side</div>
-        <button aria-label="Apri test Tasti"></button>
-      </div>
-      <div class="tile" data-test="charging">
-        <div class="status" id="status-charging"></div>
-        <h3>Porta di ricarica</h3>
-        <div class="pill">USB‑C/Lightning</div>
-        <button aria-label="Apri test Ricarica"></button>
-      </div>
-      <div class="tile" data-test="wireless">
-        <div class="status" id="status-wireless"></div>
-        <h3>Modulo wireless</h3>
-        <div class="pill">rete & ping</div>
-        <button aria-label="Apri test Wireless"></button>
-      </div>
-      <div class="tile" data-test="touch">
-        <div class="status" id="status-touch"></div>
-        <h3>Touch screen</h3>
-        <div class="pill">griglia</div>
-        <button aria-label="Apri test Touch"></button>
-      </div>
-      <div class="tile" data-test="camera">
-        <div class="status" id="status-camera"></div>
-        <h3>Fotocamere</h3>
-        <div class="pill">anteprima</div>
-        <button aria-label="Apri test Fotocamere"></button>
-      </div>
-      <div class="tile" data-test="logs">
-        <div class="status" id="status-logs"></div>
-        <h3>Log & crash</h3>
-        <div class="pill">upload</div>
-        <button aria-label="Apri analisi Log"></button>
-      </div>
-      <div class="tile" data-test="battery">
-        <div class="status" id="status-battery"></div>
-        <h3>Stato batteria</h3>
-        <div class="pill">manuale</div>
-        <button aria-label="Apri batteria"></button>
-      </div>
-      <div class="tile" data-test="storage">
-        <div class="status" id="status-storage"></div>
-        <h3>Memoria interna</h3>
-        <div class="pill">stima</div>
-        <button aria-label="Apri memoria"></button>
-      </div>
-      <div class="tile" data-test="device">
-        <div class="status" id="status-device"></div>
-        <h3>Info dispositivo</h3>
-        <div class="pill">modello/SN</div>
-        <button aria-label="Apri info"></button>
-      </div>
+    <div class="tip" id="install" hidden>
+      <span>📲 Per usarlo anche <b>offline</b>: tocca <b>Condividi</b> → <b>Aggiungi alla schermata Home</b>.</span>
+      <button class="btn ghost" id="tipClose" style="flex:0 0 auto;padding:4px 10px;min-height:32px" aria-label="Chiudi suggerimento">✕</button>
     </div>
 
+    <section class="card" aria-label="Scheda controllo">
+      <div class="row wrap">
+        <div class="field half"><label class="small" for="customer">Cliente</label><input id="customer" autocomplete="off" placeholder="Nome e cognome" maxlength="80" /></div>
+        <div class="field half"><label class="small" for="model">Modello iPhone</label><input id="model" list="models" autocomplete="off" placeholder="es. iPhone 15 Pro" maxlength="60" />
+          <datalist id="models">
+            <option value="iPhone 11"></option><option value="iPhone 11 Pro"></option><option value="iPhone 11 Pro Max"></option>
+            <option value="iPhone SE (2ª gen.)"></option><option value="iPhone SE (3ª gen.)"></option>
+            <option value="iPhone 12 mini"></option><option value="iPhone 12"></option><option value="iPhone 12 Pro"></option><option value="iPhone 12 Pro Max"></option>
+            <option value="iPhone 13 mini"></option><option value="iPhone 13"></option><option value="iPhone 13 Pro"></option><option value="iPhone 13 Pro Max"></option>
+            <option value="iPhone 14"></option><option value="iPhone 14 Plus"></option><option value="iPhone 14 Pro"></option><option value="iPhone 14 Pro Max"></option>
+            <option value="iPhone 15"></option><option value="iPhone 15 Plus"></option><option value="iPhone 15 Pro"></option><option value="iPhone 15 Pro Max"></option>
+            <option value="iPhone 16e"></option><option value="iPhone 16"></option><option value="iPhone 16 Plus"></option><option value="iPhone 16 Pro"></option><option value="iPhone 16 Pro Max"></option>
+            <option value="iPhone 17"></option><option value="iPhone Air"></option><option value="iPhone 17 Pro"></option><option value="iPhone 17 Pro Max"></option>
+          </datalist>
+        </div>
+      </div>
+      <div class="row" style="justify-content:space-between;margin:6px 0 4px"><span class="small" id="progTxt">0/14 test completati</span><span class="small" id="scoreTxt"></span></div>
+      <div class="bar" role="progressbar" aria-label="Avanzamento controlli"><i id="progBar"></i></div>
+    </section>
+
+    <div class="grid" id="grid"></div>
+
     <div class="field" style="margin-top:14px">
-      <label class="small">Note finali per il report</label>
-      <textarea id="notes" rows="3" placeholder="Annotazioni sull’esito dei test…"></textarea>
+      <label class="small" for="notes">Note finali per il report</label>
+      <textarea id="notes" rows="3" maxlength="1000" placeholder="Annotazioni sull’esito dei test…"></textarea>
     </div>
   </div>
 
   <div class="footer">
-    <div class="row" style="margin-bottom:8px">
-      <button class="btn" id="exportTxt">Esporta report (.txt)</button>
-      <button class="btn" id="exportJson">Esporta dati (.json)</button>
-      <button class="btn" id="print">Stampa / PDF</button>
-      <button class="btn" id="finalize">Finalizza & QR</button>
+    <div class="row">
+      <button class="btn" id="btnNew">＋ Nuovo</button>
+      <button class="btn" id="btnHist">🕘 Cronologia</button>
+      <button class="btn primary grow" id="btnFinal">Finalizza &amp; report</button>
     </div>
-    <div class="small" style="text-align:center;color:var(--muted)">© 2025 2M Digital Consulting SRLS — www.2m-srls.com</div>
+    <div class="small center">© <span id="yr">2025</span> 2M Digital Consulting SRLS — <a href="https://www.2m-srls.com" target="_blank" rel="noopener">www.2m-srls.com</a></div>
   </div>
 
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="sheet" id="sheet">
-      <div class="row" style="justify-content:space-between">
+      <div class="sheet-head">
         <h2 id="sheetTitle">—</h2>
-        <button class="btn" id="closeSheet" style="flex:0 0 auto;padding:8px 12px">Chiudi</button>
+        <button class="btn" id="closeSheet" style="flex:0 0 auto;padding:8px 14px" aria-label="Chiudi">Chiudi</button>
       </div>
       <div id="sheetBody"></div>
     </div>
   </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="printReport" aria-hidden="true"></div>
+
+<!-- QR Code Generator for JavaScript — © Kazuhiko Arase, licenza MIT (http://www.d-project.com/). Incluso in forma minificata per funzionare offline. "QR Code" è marchio registrato di DENSO WAVE INCORPORATED. -->
+<script>var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(o*r,n*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});</script>
 
 <script>
-// --- State & helpers ---
-const state = JSON.parse(localStorage.getItem('iphone_check_state')||'{}');
-const setState = (patch)=>{Object.assign(state, patch); localStorage.setItem('iphone_check_state', JSON.stringify(state)); refreshStatuses();}
-const el = (html)=>{const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstElementChild}
-const fmt = (n)=> (n>=1e9? (n/1e9).toFixed(2)+' GB' : n>=1e6? (n/1e6).toFixed(2)+' MB' : (n/1e3).toFixed(2)+' KB');
-const statusEl = id=>document.getElementById('status-'+id)
-function mark(id, val){ setState({[id]:{...(state[id]||{}), status:val, ts:Date.now()}}) }
-function refreshStatuses(){
-  ['audio','buttons','charging','wireless','touch','camera','logs','battery','storage','device'].forEach(k=>{
-    const s = (state[k]||{}).status || null;
-    const dom = statusEl(k); dom.classList.remove('ok','bad','warn');
-    if(s==='ok') dom.classList.add('ok'); else if(s==='bad') dom.classList.add('bad'); else if(s==='warn') dom.classList.add('warn');
-  })
-  document.getElementById('notes').value = state.notes||'';
-  const name = state.device?.model || navigator.userAgentData?.platform || navigator.platform || 'iPhone?';
-  document.getElementById('deviceName').textContent = name;
-}
+(()=>{
+'use strict';
 
-document.getElementById('notes').addEventListener('input', e=> setState({notes:e.target.value}))
+/* ===================== Utilità ===================== */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const el=html=>{const t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstElementChild};
+const pad=n=>String(n).padStart(2,'0');
+const fmtDate=ts=>{const d=new Date(ts);return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
+const slug=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').toLowerCase();
+const fmtBytes=n=>n>=1e9?(n/1e9).toFixed(2)+' GB':n>=1e6?(n/1e6).toFixed(2)+' MB':(n/1e3).toFixed(2)+' KB';
+const luhn=s=>{let sum=0,alt=false;for(let i=s.length-1;i>=0;i--){let d=+s[i];if(alt){d*=2;if(d>9)d-=9}sum+=d;alt=!alt}return sum%10===0};
+const cyrb53=(str,seed=0)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(16).toUpperCase().padStart(14,'0')};
+const newId=()=>Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase();
+let toastTimer;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2600)}
 
-const modal = document.getElementById('modal');
-const sheetTitle = document.getElementById('sheetTitle');
-const sheetBody = document.getElementById('sheetBody');
-function openSheet(title, bodyNode){ sheetTitle.textContent = title; sheetBody.innerHTML=''; sheetBody.appendChild(bodyNode); modal.style.display='flex'; }
-function closeSheet(){ modal.style.display='none'; }
-modal.addEventListener('click', (e)=>{ if(e.target===modal) closeSheet(); })
-document.getElementById('closeSheet').onclick = closeSheet;
+/* ===================== Dati ===================== */
+const TESTS=[
+  {id:'audio',   icon:'🔊',title:'Audio & Microfono',   hint:'tono, meter, registrazione'},
+  {id:'buttons', icon:'🔘',title:'Tasti fisici',        hint:'volume, laterale, silenzioso'},
+  {id:'charging',icon:'🔌',title:'Ricarica',            hint:'cavo, wireless, porta'},
+  {id:'wireless',icon:'📶',title:'Wireless & rete',     hint:'ping, Wi‑Fi, Bluetooth, SIM'},
+  {id:'touch',   icon:'👆',title:'Touch screen',        hint:'griglia + multitouch'},
+  {id:'display', icon:'🖥️',title:'Display',             hint:'pixel morti, macchie'},
+  {id:'camera',  icon:'📷',title:'Fotocamere',          hint:'anteprima e scatto'},
+  {id:'sensors', icon:'🧭',title:'Sensori',             hint:'movimento, giroscopio'},
+  {id:'security',icon:'🔒',title:'Sicurezza & iCloud',  hint:'blocco attivazione, MDM'},
+  {id:'parts',   icon:'🧩',title:'Parti & originalità', hint:'cronologia assistenza'},
+  {id:'battery', icon:'🔋',title:'Batteria',            hint:'capacità e cicli'},
+  {id:'storage', icon:'💾',title:'Memoria interna',     hint:'capacità dichiarata'},
+  {id:'logs',    icon:'📝',title:'Log & crash',         hint:'analisi file .ips'},
+  {id:'device',  icon:'📱',title:'Info dispositivo',    hint:'modello, SN, IMEI'}
+];
+const LABEL={ok:'OK',warn:'Attenzione',bad:'Problema'};
+const STAT={none:'Da fare',...LABEL};
+const SYM={none:'•',ok:'✓',warn:'!',bad:'✕'};
+const KEY='iphone_check_state_v2', OLDKEY='iphone_check_state', HKEY='iphone_check_history_v1';
 
-Array.from(document.querySelectorAll('.tile')).forEach(t=>{ t.addEventListener('click',()=>{ const id=t.dataset.test; (handlers[id]||(()=>{}))(); })})
+function jget(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}}
+function jset(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}}
 
-// --- Test handlers (come versione precedente) ---
-const handlers = {
-  audio(){
-    const body = el(`<div>
-      <p>1) Premi “Riproduci suono” e conferma di sentire dagli altoparlanti. 2) Avvia “Test microfono” e parla: il meter deve muoversi.</p>
-      <div class='row wrap'>
-        <button class='btn' id='playTone'>Riproduci suono</button>
-        <button class='btn' id='startMic'>Test microfono</button>
-        <button class='btn' id='stopMic'>Stop</button>
-        <button class='btn' id='passAudio'>Segna come OK</button>
-      </div>
-      <div class='field'>
-        <label class='small'>Intensità microfono</label>
-        <div class='bar'><i id='micLevel'></i></div>
-      </div>
-      <p class='small muted'>Nota: iOS richiede il gesto dell’utente per l’audio; se non senti nulla, alza il volume.</p>
-    </div>`);
-    openSheet('Audio & Microfono', body);
-    const ctx = new (window.AudioContext||window.webkitAudioContext)(); let osc;
-    body.querySelector('#playTone').onclick = ()=>{ if(osc) osc.stop(); osc = ctx.createOscillator(); const gain=ctx.createGain(); osc.frequency.value=440; gain.gain.setValueAtTime(0.2, ctx.currentTime); osc.connect(gain).connect(ctx.destination); osc.start(); setTimeout(()=>osc.stop(),1500); }
-    let mediaStream, analyser, raf;
-    body.querySelector('#startMic').onclick = async ()=>{ try{ mediaStream = await navigator.mediaDevices.getUserMedia({audio:true}); const actx=new (window.AudioContext||window.webkitAudioContext)(); const src=actx.createMediaStreamSource(mediaStream); analyser=actx.createAnalyser(); analyser.fftSize=256; src.connect(analyser); const data=new Uint8Array(analyser.frequencyBinCount); const bar=body.querySelector('#micLevel'); const loop=()=>{ analyser.getByteTimeDomainData(data); let rms=0; for(let i=0;i<data.length;i++){const v=(data[i]-128)/128; rms+=v*v;} rms=Math.sqrt(rms/data.length); bar.style.width=Math.min(100,(rms*300)).toFixed(1)+'%'; raf=requestAnimationFrame(loop)}; loop(); }catch(err){ alert('Permesso microfono negato o non disponibile.'); } }
-    body.querySelector('#stopMic').onclick = ()=>{ if(mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()) } cancelAnimationFrame(raf) }
-    body.querySelector('#passAudio').onclick = ()=>{ mark('audio','ok'); closeSheet(); }
-  },
-  buttons(){ const body = el(`<div><p>Premi in sequenza <span class='kbd'>Volume +</span>, <span class='kbd'>Volume −</span> e il tasto laterale. I browser non possono leggere questi eventi su iPhone, quindi conferma manualmente.</p><div class='row wrap'><button class='btn' id='ok'>Tasti funzionanti</button><button class='btn' id='warn'>Non sicuro</button></div><p class='small muted'>Suggerimento: prova anche il cursore Suoneria/Silenzioso se presente.</p></div>`); openSheet('Tasti fisici', body); body.querySelector('#ok').onclick=()=>{mark('buttons','ok'); closeSheet();}; body.querySelector('#warn').onclick=()=>{mark('buttons','warn'); closeSheet();}; },
-  charging(){ const body=el(`<div><p>Collega il cavo di ricarica e verifica la comparsa dell’icona ⚡︎. I browser su iOS non espongono lo stato batteria, quindi la conferma è manuale.</p><div class='row wrap'><button class='btn' id='ok'>Ricarica OK</button><button class='btn' id='clean'>Porta da pulire</button></div><p class='small muted'>Se non ricarica: prova altro cavo/alimentatore; ispeziona la porta; prova ricarica wireless.</p></div>`); openSheet('Porta di ricarica', body); body.querySelector('#ok').onclick=()=>{mark('charging','ok'); closeSheet();}; body.querySelector('#clean').onclick=()=>{mark('charging','warn'); closeSheet();}; },
-  wireless(){ const body=el(`<div><p>Verifica la connettività eseguendo piccoli test di rete.</p><div class='row wrap'><button class='btn' id='run'>Esegui test</button><button class='btn' id='pass'>Segna come OK</button></div><div class='field'><label class='small'>Risultati</label><div id='netOut' class='small'></div></div></div>`); openSheet('Modulo wireless', body); const out=body.querySelector('#netOut'); async function pingOnce(url){ const t0=performance.now(); try{ await fetch(url,{mode:'no-cors',cache:'no-store'}); return (performance.now()-t0) }catch(e){ return NaN }} body.querySelector('#run').onclick = async()=>{ out.textContent='Eseguo test...'; const urls=['https://www.apple.com','https://www.icloud.com','https://example.com']; const res=[]; for(const u of urls){ const d=await pingOnce(u); res.push({u, ms:isNaN(d)?'errore':Math.round(d)+' ms'}) } out.innerHTML=res.map(r=>`• ${r.u} → <b>${r.ms}</b>`).join('<br>'); }; body.querySelector('#pass').onclick=()=>{mark('wireless','ok'); closeSheet();}; },
-  touch(){ const body=el(`<div><p>Traccia il dito per colorare tutte le celle. Quando la griglia è completa il test passa.</p><canvas id='touchCanvas' width='340' height='400'></canvas><div class='row wrap' style='margin-top:8px'><button class='btn' id='reset'>Reset</button></div></div>`); openSheet('Touch screen', body); const cvs=body.querySelector('#touchCanvas'); const ctx=cvs.getContext('2d'); const cols=6, rows=8; const cellW=cvs.width/cols, cellH=cvs.height/rows; let filled=Array(rows).fill(0).map(()=>Array(cols).fill(false)); function draw(){ ctx.clearRect(0,0,cvs.width,cvs.height); ctx.strokeStyle='#d0d5e4'; for(let y=0;y<rows;y++){ for(let x=0;x<cols;x++){ const fx=x*cellW, fy=y*cellH; if(filled[y][x]){ ctx.fillStyle='#d1fae5'; ctx.fillRect(fx+1,fy+1,cellW-2,cellH-2)} ctx.strokeRect(fx+0.5,fy+0.5,cellW,cellH)} } } function setFillAt(x,y){ const cx=Math.floor(x/cellW), cy=Math.floor(y/cellH); if(cx>=0&&cy>=0&&cx<cols&&cy<rows){ filled[cy][cx]=true; draw(); checkDone(); } } function pointer(e){ const rect=cvs.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-rect.top; setFillAt(x,y); } cvs.addEventListener('pointerdown',pointer); cvs.addEventListener('pointermove', e=>{ if(e.buttons) pointer(e)}); cvs.addEventListener('touchstart', pointer, {passive:true}); cvs.addEventListener('touchmove', pointer, {passive:true}); function checkDone(){ const all=filled.every(r=>r.every(Boolean)); if(all){ mark('touch','ok'); setTimeout(closeSheet, 400);} } body.querySelector('#reset').onclick=()=>{ filled=Array(rows).fill(0).map(()=>Array(cols).fill(false)); draw(); }; draw(); },
-  camera(){ const body=el(`<div><p>Prova tutte le fotocamere disponibili. Concedi l’accesso, cambia camera dall’elenco e verifica anteprima e scatto.</p><div class='row wrap'><select id='cams'></select><button class='btn' id='start'>Avvia</button><button class='btn' id='snap'>Scatta</button><button class='btn' id='ok'>Segna come OK</button></div><video id='vid' playsinline autoplay muted></video><canvas id='shot' width='0' height='0'></canvas><div class='small muted'>Suggerimento: prova grandangolo, principale, tele, macro e anteriore (se disponibili).</div></div>`); openSheet('Fotocamere', body); const sel=body.querySelector('#cams'); const vid=body.querySelector('#vid'); const cnv=body.querySelector('#shot'); let stream; async function listCams(){ try{ await navigator.mediaDevices.getUserMedia({video:true}); }catch(e){} const devs=await navigator.mediaDevices.enumerateDevices(); const cams=devs.filter(d=>d.kind==='videoinput'); sel.innerHTML=''; cams.forEach((c,i)=>{ const opt=document.createElement('option'); opt.value=c.deviceId; opt.textContent=c.label||('Fotocamera '+(i+1)); sel.appendChild(opt)});} async function start(){ if(stream){ stream.getTracks().forEach(t=>t.stop()) } const id=sel.value; const constraints={video: id? {deviceId:{exact:id}} : {facingMode:'environment'}}; try{ stream=await navigator.mediaDevices.getUserMedia(constraints); vid.srcObject=stream; }catch(e){ alert('Accesso fotocamera negato.'); } } body.querySelector('#start').onclick=start; body.querySelector('#ok').onclick=()=>{ mark('camera','ok'); if(stream) stream.getTracks().forEach(t=>t.stop()); closeSheet(); }; body.querySelector('#snap').onclick=()=>{ if(!vid.videoWidth) return; cnv.width=vid.videoWidth; cnv.height=vid.videoHeight; cnv.getContext('2d').drawImage(vid,0,0); }; listCams(); },
-  logs(){ const body=el(`<div><p>Opzionale: carica un file di log iOS (Impostazioni → Privacy e sicurezza → Analisi e miglioramenti → Dati analisi) per cercare errori noti.</p><input type='file' id='file' accept='.txt,.log,.ips' /><div class='field'><label class='small'>Esiti</label><pre id='out' style='white-space:pre-wrap;background:#fff;padding:10px;border-radius:10px;border:1px solid var(--border);max-height:40vh;overflow:auto'></pre></div><div class='row wrap'><button class='btn' id='ok'>Nessun problema rilevante</button></div></div>`); openSheet('Log & crash', body); const out=body.querySelector('#out'); body.querySelector('#file').addEventListener('change', async (e)=>{ const f=e.target.files[0]; if(!f) return; const txt=await f.text(); const patterns=['panic','jetsam','lowmemory','thermal','baseband','shutdown cause','CPU Panic']; let hits=[]; patterns.forEach(p=>{ const re=new RegExp(p,'ig'); let m; while((m=re.exec(txt))){ hits.push({pattern:p, index:m.index}) } }); if(!hits.length){ out.textContent='Nessun pattern critico trovato.'; mark('logs','ok'); } else { out.textContent='Trovati '+hits.length+' riferimenti potenzialmente critici (controllare con un tecnico):\n'+hits.map(h=>`- ${h.pattern} @ ${h.index}`).join('\n'); mark('logs','warn'); } }); body.querySelector('#ok').onclick=()=>{ mark('logs','ok'); closeSheet(); }; },
-  battery(){ const body=el(`<div><p>Safari su iOS non espone livello e salute batteria. Inserisci manualmente i dati da <span class='kbd'>Impostazioni → Batteria → Stato batteria</span>.</p><div class='row wrap'><div class='field' style='flex:1'><label class='small'>Capacità massima (%)</label><input id='cap' type='number' inputmode='numeric' placeholder='es. 100' min='50' max='110' /></div><div class='field' style='flex:1'><label class='small'>Cicli (se noto)</label><input id='cycles' type='number' inputmode='numeric' placeholder='—' /></div></div><div class='row wrap'><button class='btn' id='ok'>Salva & OK</button></div></div>`); openSheet('Stato batteria', body); const cap=body.querySelector('#cap'); const cycles=body.querySelector('#cycles'); if(state.battery){ cap.value=state.battery.cap||''; cycles.value=state.battery.cycles||''; } body.querySelector('#ok').onclick=()=>{ setState({battery:{cap:cap.value, cycles:cycles.value}}); mark('battery','ok'); closeSheet(); }; },
-  storage(){ const body=el(`<div><p>Stima quota/uso storage del browser (non l’intero iPhone). Per capacità dispositivo, vedi <span class='kbd'>Impostazioni → Generali → Spazio iPhone</span>.</p><div class='row wrap'><button class='btn' id='run'>Calcola</button><button class='btn' id='ok'>Segna come OK</button></div><div class='field'><label class='small'>Risultato</label><div id='out' class='small'></div></div></div>`); openSheet('Memoria interna', body); const out=body.querySelector('#out'); body.querySelector('#run').onclick=async()=>{ if(navigator.storage && navigator.storage.estimate){ const est=await navigator.storage.estimate(); out.innerHTML=`Quota stimata: <b>${fmt(est.quota||0)}</b><br>In uso: <b>${fmt(est.usage||0)}</b>`; } else { out.textContent='API non disponibile su questo browser.' } }; body.querySelector('#ok').onclick=()=>{ mark('storage','ok'); closeSheet(); }; },
-  device(){ const body=el(`<div><p>I browser non possono leggere modello e numero di serie. Indicali manualmente.</p><div class='row wrap'><div class='field' style='flex:1'><label class='small'>Modello (es. iPhone 15 Pro)</label><input id='model' placeholder='iPhone …' /></div><div class='field' style='flex:1'><label class='small'>Numero di serie</label><input id='sn' placeholder='—' /></div></div><div class='field'><label class='small'>Info browser</label><textarea rows='3' readonly>${navigator.userAgent}</textarea></div><div class='row wrap'><button class='btn' id='save'>Salva</button><button class='btn' id='ok'>Segna come OK</button><a class='btn' href='app-settings:/' style='text-decoration:none'>Apri Impostazioni</a></div></div>`); openSheet('Info dispositivo', body); const model=body.querySelector('#model'); const sn=body.querySelector('#sn'); if(state.device){ model.value=state.device.model||''; sn.value=state.device.sn||''; } body.querySelector('#save').onclick=()=>{ setState({device:{model:model.value, sn:sn.value}}) }; body.querySelector('#ok').onclick=()=>{ mark('device','ok'); closeSheet(); }; }
-}
+let state=jget(KEY,null)||jget(OLDKEY,{});
+if(!state.id){state.id=newId()}
+if(!state.startedAt){state.startedAt=Date.now()}
+let saveWarned=false;
+function persist(){if(!jset(KEY,state)&&!saveWarned){saveWarned=true;toast('Memoria del browser piena: esporta i dati.')}}
+function setState(p){Object.assign(state,p);persist();render()}
+function patch(id,p){state[id]={...(state[id]||{}),...p};persist();render()}
+function setStatus(id,val){const o={...(state[id]||{})};if(val){o.status=val;o.ts=Date.now()}else{delete o.status;delete o.ts}state[id]=o;persist();render()}
 
-// --- Scoring & QR ---
 function computeScore(){
-  const keys=['audio','buttons','charging','wireless','touch','camera','logs','battery','storage','device'];
-  let pts=0, tot=keys.length; keys.forEach(k=>{ const s=(state[k]||{}).status; if(k==='battery'){ if(state.battery?.cap) pts+=1; return;} if(s==='ok') pts+=1; else if(s==='warn') pts+=0.5; });
-  const pct = Math.round((pts/tot)*100);
-  let verdict = pct>=90? 'Eccellente' : pct>=75? 'Buono' : pct>=60? 'Discreto' : 'Da rivedere';
-  return {points:pts, total:tot, percent:pct, verdict};
+  let pts=0,done=0,bad=0;
+  for(const t of TESTS){const s=state[t.id]?.status;if(s)done++;if(s==='ok')pts+=1;else if(s==='warn')pts+=.5;else if(s==='bad')bad++}
+  const total=TESTS.length,percent=Math.round(pts/total*100);
+  let verdict=percent>=90?'Eccellente':percent>=75?'Buono':percent>=60?'Discreto':'Da rivedere';
+  if(bad&&(verdict==='Eccellente'||verdict==='Buono'))verdict='Discreto';
+  if(state.security?.status==='bad')verdict='Non idoneo';
+  return {points:pts,total,done,bad,percent,verdict,complete:done===total};
 }
 
-// Pseudo-QR: genera un pattern deterministico dai dati (per demo/offline). In produzione sostituisci con una libreria QR.
-function makePseudoQR(text, size=192){
-  const c=document.createElement('canvas'); c.width=c.height=size; const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,size,size); g.fillStyle='#000';
-  let seed=0; for(let i=0;i<text.length;i++){ seed=(seed*31 + text.charCodeAt(i))>>>0 }
-  const cells=33, step=size/cells; for(let y=0;y<cells;y++){ for(let x=0;x<cells;x++){ seed=(seed*1103515245+12345)&0x7fffffff; if((seed>>>16)&1){ g.fillRect(Math.floor(x*step),Math.floor(y*step),Math.ceil(step-1),Math.ceil(step-1)) } } }
+/* ===================== Interfaccia principale ===================== */
+const tiles={};
+for(const t of TESTS){
+  const b=el(`<button class="tile" data-test="${t.id}" data-s="none"><span class="chip"><i></i><b></b></span><span class="ic" aria-hidden="true">${t.icon}</span><h3>${t.title}</h3><span class="pill">${t.hint}</span></button>`);
+  b.onclick=()=>H[t.id]();
+  $('#grid').append(b);tiles[t.id]=b;
+}
+const sync=(sel,v)=>{const e=$(sel);if(e&&document.activeElement!==e&&e.value!==(v||''))e.value=v||''};
+function render(){
+  for(const t of TESTS){
+    const s=state[t.id]?.status||'none',b=tiles[t.id];
+    b.dataset.s=s;$('.chip i',b).textContent=SYM[s];$('.chip b',b).textContent=STAT[s];
+    b.setAttribute('aria-label',`${t.title}: ${STAT[s]}`);
+  }
+  const sc=computeScore();
+  $('#progBar').style.width=(sc.done/sc.total*100)+'%';
+  $('#progTxt').textContent=`${sc.done}/${sc.total} test completati`;
+  $('#scoreTxt').textContent=`Punteggio ${sc.percent}% · ${sc.verdict}${sc.complete?'':' (provvisorio)'}`;
+  sync('#customer',state.customer);sync('#model',state.device?.model);sync('#notes',state.notes);
+  $('#deviceName').textContent=state.device?.model||navigator.platform||'—';
+}
+$('#customer').addEventListener('input',e=>setState({customer:e.target.value}));
+$('#model').addEventListener('input',e=>patch('device',{model:e.target.value}));
+$('#notes').addEventListener('input',e=>setState({notes:e.target.value}));
+$('#yr').textContent=new Date().getFullYear();
+
+/* ===================== Sheet (finestra modale) ===================== */
+const modal=$('#modal'),sheet=$('#sheet'),sheetBody=$('#sheetBody');
+let sheetCleanup=null,lastFocus=null,wake=null;
+async function requestWake(){try{if('wakeLock' in navigator)wake=await navigator.wakeLock.request('screen')}catch{}}
+function releaseWake(){try{wake&&wake.release()}catch{}wake=null}
+function openSheet(title,node,onClose){
+  closeSheet(true);
+  lastFocus=document.activeElement;
+  $('#sheetTitle').textContent=title;sheetBody.replaceChildren(node);
+  modal.style.display='flex';document.body.style.overflow='hidden';
+  sheetCleanup=onClose||null;sheet.scrollTop=0;$('#closeSheet').focus();requestWake();
+}
+function closeSheet(silent){
+  if(modal.style.display!=='flex')return;
+  try{sheetCleanup&&sheetCleanup()}catch(e){console.warn(e)}
+  sheetCleanup=null;modal.style.display='none';sheetBody.replaceChildren();
+  document.body.style.overflow='';releaseWake();
+  if(silent!==true&&lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+modal.addEventListener('click',e=>{if(e.target===modal)closeSheet()});
+$('#closeSheet').onclick=()=>closeSheet();
+modal.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeSheet();
+  if(e.key==='Tab'){
+    const f=$$('button,input,select,textarea,a[href],[tabindex]:not([tabindex="-1"])',sheet).filter(x=>!x.disabled&&x.offsetParent!==null);
+    if(!f.length)return;const a=f[0],z=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}
+    else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}
+  }
+});
+
+/* Barra esito (OK / Attenzione / Problema) con nota facoltativa */
+function resultBar(id){
+  const n=el(`<div class="resultbar">
+    <div class="field"><label class="small" for="note-${id}">Nota facoltativa (finisce nel report)</label><input id="note-${id}" type="text" maxlength="200" placeholder="es. microfono posteriore attutito" /></div>
+    <div class="row wrap"><button class="btn ok" data-s="ok">✓ OK</button><button class="btn warn" data-s="warn">! Attenzione</button><button class="btn bad" data-s="bad">✕ Problema</button></div>
+    <div class="row" style="margin-top:8px"><button class="btn ghost" data-s="">Azzera esito</button></div></div>`);
+  const note=$('input',n);note.value=state[id]?.note||'';
+  note.addEventListener('input',()=>patch(id,{note:note.value.trim()}));
+  $$('[data-s]',n).forEach(b=>b.onclick=()=>{patch(id,{note:note.value.trim()});setStatus(id,b.dataset.s);closeSheet()});
+  n.suggest=s=>$$('[data-s]',n).forEach(b=>b.classList.toggle('suggest',!!s&&b.dataset.s===s));
+  return n;
+}
+function checklist(id,items,onChange){
+  const saved=state[id]?.checks||{};
+  const n=el(`<div class="checks">${items.map(([k,l])=>`<label><input type="checkbox" data-k="${k}" ${saved[k]?'checked':''} /><span>${l}</span></label>`).join('')}</div>`);
+  n.counts=()=>({n:$$('input:checked',n).length,t:items.length});
+  n.addEventListener('change',()=>{const c={};$$('input',n).forEach(i=>c[i.dataset.k]=i.checked);patch(id,{checks:c});onChange&&onChange(n.counts())});
+  return n;
+}
+function checklistTest(id,title,intro,items,extra){
+  const wrap=el('<div></div>');
+  wrap.append(el(`<p>${intro}</p>`));
+  if(extra)wrap.append(extra);
+  const bar=resultBar(id);
+  const cl=checklist(id,items,c=>bar.suggest(c.n===c.t?'ok':null));
+  wrap.append(cl,bar);
+  const c0=cl.counts();bar.suggest(c0.n===c0.t?'ok':null);
+  openSheet(title,wrap);
+}
+
+/* ===================== Test ===================== */
+const H={};
+
+/* --- Audio --- */
+H.audio=()=>{
+  let ctx,osc,mic,raf,play,url,peak=0,recTimer;
+  const body=el(`<div>
+    <p>1) Riproduci il tono: deve uscire pulito, senza fruscii o distorsioni. 2) Avvia il microfono e parla: il livello deve muoversi. 3) Registra 3 secondi e riascolta: verifica microfono e altoparlante insieme.</p>
+    <div class="row wrap"><button class="btn" id="tone">▶︎ Tono 440 Hz</button><button class="btn" id="sweep">〰︎ Sweep 100–4000 Hz</button></div>
+    <div class="row wrap" style="margin-top:8px"><button class="btn" id="mic">🎙️ Avvia microfono</button><button class="btn" id="rec">⏺ Registra 3 s</button><button class="btn" id="stop">Stop</button></div>
+    <div class="field"><label class="small">Livello microfono — picco: <b id="peak">0%</b></label><div class="bar"><i id="lvl"></i></div></div>
+    <audio id="play" controls hidden style="width:100%"></audio>
+    <p class="small">Se non senti il tono controlla volume e interruttore Silenzioso. Se il microfono non parte, consenti l’accesso in Safari (aA → Impostazioni sito web).</p>
+  </div>`);
+  const bar=resultBar('audio');body.append(bar);
+  const getCtx=()=>{if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();ctx.resume&&ctx.resume();return ctx};
+  const stopOsc=()=>{try{osc&&osc.stop()}catch{}osc=null};
+  const beep=(sweep)=>{
+    try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch{}
+    const c=getCtx();stopOsc();osc=c.createOscillator();const g=c.createGain();g.gain.value=.2;
+    const t=c.currentTime;
+    if(sweep){osc.frequency.setValueAtTime(100,t);osc.frequency.exponentialRampToValueAtTime(4000,t+3)}
+    else osc.frequency.value=440;
+    osc.connect(g).connect(c.destination);osc.start();osc.stop(t+(sweep?3:1.5));
+  };
+  $('#tone',body).onclick=()=>beep(false);$('#sweep',body).onclick=()=>beep(true);
+  async function startMic(){
+    if(mic)return true;
+    try{
+      mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+      const c=getCtx(),src=c.createMediaStreamSource(mic),an=c.createAnalyser();an.fftSize=512;src.connect(an);
+      const data=new Uint8Array(an.fftSize),lvl=$('#lvl',body),pk=$('#peak',body);
+      const loop=()=>{an.getByteTimeDomainData(data);let s=0;for(const v of data){const x=(v-128)/128;s+=x*x}const rms=Math.sqrt(s/data.length);peak=Math.max(peak,rms);lvl.style.width=Math.min(100,rms*300).toFixed(1)+'%';pk.textContent=Math.min(100,Math.round(peak*300))+'%';if(peak>.04)bar.suggest('ok');raf=requestAnimationFrame(loop)};
+      loop();return true;
+    }catch{toast('Microfono non disponibile o permesso negato');mic=null;return false}
+  }
+  const stopMic=()=>{cancelAnimationFrame(raf);if(mic){mic.getTracks().forEach(t=>t.stop());mic=null}};
+  $('#mic',body).onclick=startMic;$('#stop',body).onclick=()=>{stopMic();stopOsc()};
+  $('#rec',body).onclick=async()=>{
+    if(typeof MediaRecorder==='undefined'){toast('Registrazione non supportata da questo browser');return}
+    if(!await startMic())return;
+    const chunks=[],r=new MediaRecorder(mic);
+    r.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+    r.onstop=()=>{if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(new Blob(chunks,{type:r.mimeType||'audio/mp4'}));play=$('#play',body);play.src=url;play.hidden=false;try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch{}play.play().catch(()=>{})};
+    toast('Registro 3 secondi… parla ora');r.start();recTimer=setTimeout(()=>{try{r.stop()}catch{}},3000);
+  };
+  openSheet('Audio & Microfono',body,()=>{stopMic();stopOsc();clearTimeout(recTimer);if(url)URL.revokeObjectURL(url);try{ctx&&ctx.close()}catch{}});
+};
+
+/* --- Tasti fisici --- */
+H.buttons=()=>checklistTest('buttons','Tasti fisici',
+  'Premi ogni tasto: i browser su iPhone non possono leggerli, quindi spunta ciò che funziona.',
+  [['volup','<b>Volume +</b>: compare l’indicatore e il volume sale'],
+   ['voldown','<b>Volume −</b>: il volume scende'],
+   ['side','<b>Tasto laterale</b>: blocca/sblocca lo schermo; tenuto premuto attiva Siri/spegnimento'],
+   ['mute','<b>Interruttore Silenzioso / Tasto Azione</b>: cambia modalità con feedback aptico'],
+   ['camctl','<b>Controllo fotocamera</b> (iPhone 16 e successivi): apre la fotocamera'],
+   ['haptic','<b>Feedback aptico</b> attivo (Impostazioni → Suoni e feedback aptico)']]);
+
+/* --- Ricarica --- */
+H.charging=()=>checklistTest('charging','Ricarica',
+  'Collega il cavo e verifica la comparsa dell’icona ⚡︎. I browser su iOS non espongono lo stato batteria: conferma a mano.',
+  [['cable','<b>Ricarica via cavo</b>: compare ⚡︎ e la percentuale sale'],
+   ['stable','<b>Connettore stabile</b>: muovendo il cavo non si disconnette'],
+   ['clean','<b>Porta pulita</b>: nessun detrito o ossidazione ai contatti'],
+   ['wireless','<b>Ricarica wireless / MagSafe</b> (se supportata)'],
+   ['data','<b>Dati</b>: riconosciuto da computer o CarPlay'],
+   ['nowarn','Nessun avviso «Accessorio non supportato» o «Liquido rilevato»']]);
+
+/* --- Wireless --- */
+H.wireless=()=>{
+  const net=el(`<div><div class="row wrap"><button class="btn" id="run">Esegui test di rete</button></div><div class="field"><label class="small">Risultati</label><div id="out" class="small" aria-live="polite"></div></div></div>`);
+  const out=$('#out',net);let netOk=!!state.wireless?.net?.ok,cl,bar;
+  const upd=()=>{const c=cl.counts();bar.suggest(netOk&&c.n===c.t?'ok':null)};
+  const ping=async u=>{const ac=new AbortController(),to=setTimeout(()=>ac.abort(),5000),t=performance.now();try{await fetch(u+(u.includes('?')?'&':'?')+'t='+Date.now(),{mode:'no-cors',cache:'no-store',signal:ac.signal});return performance.now()-t}catch{return NaN}finally{clearTimeout(to)}};
+  $('#run',net).onclick=async()=>{
+    out.textContent='Eseguo test…';
+    const lines=[navigator.onLine?'✓ Il browser risulta online':'✗ Il browser risulta offline'];
+    const c=navigator.connection;if(c)lines.push(`Rete: ${c.effectiveType||'?'} · ~${c.downlink||'?'} Mbps`);
+    const urls=['https://www.apple.com/library/test/success.html','https://www.icloud.com','https://example.com'];
+    let ok=0;const ms=[];
+    for(const u of urls){const d=await ping(u);if(!isNaN(d)){ok++;ms.push(d)}lines.push(`${isNaN(d)?'✗':'✓'} ${new URL(u).host} → <b>${isNaN(d)?'errore':Math.round(d)+' ms'}</b>`)}
+    out.innerHTML=lines.join('<br>');
+    netOk=navigator.onLine&&ok===urls.length;
+    patch('wireless',{net:{ok:netOk,reached:ok,of:urls.length,avgMs:ms.length?Math.round(ms.reduce((a,b)=>a+b,0)/ms.length):null}});
+    upd();
+  };
+  const wrap=el('<div></div>');
+  wrap.append(el('<p>Esegui il test di rete, poi verifica a mano le altre radio.</p>'),net);
+  bar=resultBar('wireless');
+  cl=checklist('wireless',[
+    ['wifi','<b>Wi‑Fi</b>: si collega e naviga (prova anche 5 GHz)'],
+    ['bt','<b>Bluetooth</b>: trova e si abbina a un accessorio'],
+    ['sim','<b>SIM / dati mobili</b>: segnale presente e dati funzionanti'],
+    ['call','<b>Chiamata di prova</b>: voce chiara con auricolare e vivavoce'],
+    ['gps','<b>Posizione / GPS</b>: l’app Mappe trova la posizione']],upd);
+  wrap.append(cl,bar);upd();
+  openSheet('Wireless & rete',wrap);
+};
+
+/* --- Touch --- */
+H.touch=()=>{
+  const cols=6,rows=8;
+  const body=el(`<div><p>Strisciando il dito colora tutte le celle. Usa anche 2–5 dita insieme per provare il multitouch.</p>
+    <canvas id="cv" style="width:100%;aspect-ratio:3/4;touch-action:none;background:#fff" aria-label="Griglia test touch"></canvas>
+    <div class="row" style="justify-content:space-between;margin-top:6px"><span class="small" id="cov">0%</span><span class="small" id="mt">Dita simultanee: 0 (max 0)</span></div>
+    <div class="row wrap" style="margin-top:8px"><button class="btn" id="reset">Reset</button></div></div>`);
+  body.append(resultBar('touch'));
+  openSheet('Touch screen',body);
+  const cv=$('#cv',body),g=cv.getContext('2d'),dpr=Math.min(3,window.devicePixelRatio||1);
+  cv.width=Math.round(cv.clientWidth*dpr);cv.height=Math.round(cv.clientWidth*4/3*dpr);
+  let filled,active=new Set(),last=new Map(),maxMt=0,done=false,timer;
+  const reset=()=>{filled=Array.from({length:rows},()=>Array(cols).fill(false));done=false;draw();info()};
+  const count=()=>filled.flat().filter(Boolean).length;
+  function draw(){
+    const w=cv.width/cols,h=cv.height/rows;g.clearRect(0,0,cv.width,cv.height);g.lineWidth=1;g.strokeStyle='#cbd5e1';
+    for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){g.fillStyle=filled[y][x]?'#bbf7d0':'#f1f5f9';g.fillRect(x*w,y*h,w,h);g.strokeRect(x*w+.5,y*h+.5,w,h)}
+  }
+  function info(){$('#cov',body).textContent=`${Math.round(count()/(cols*rows)*100)}% delle celle`;$('#mt',body).textContent=`Dita simultanee: ${active.size} (max ${maxMt})`}
+  const hit=(x,y)=>{const cx=Math.floor(x*cols),cy=Math.floor(y*rows);if(cx>=0&&cy>=0&&cx<cols&&cy<rows&&!filled[cy][cx]){filled[cy][cx]=true;return true}return false};
+  const norm=e=>{const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
+  function stroke(e){
+    const p=norm(e),l=last.get(e.pointerId)||p,n=Math.ceil(Math.hypot((p[0]-l[0])*cols,(p[1]-l[1])*rows)*3)+1;let ch=false;
+    for(let i=0;i<=n;i++){const t=i/n;ch=hit(l[0]+(p[0]-l[0])*t,l[1]+(p[1]-l[1])*t)||ch}
+    last.set(e.pointerId,p);
+    if(ch){draw();info();if(!done&&count()===cols*rows){done=true;patch('touch',{coverage:100,multitouch:maxMt});setStatus('touch','ok');toast('Touch OK ✓');timer=setTimeout(closeSheet,900)}}
+  }
+  cv.onpointerdown=e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch{}active.add(e.pointerId);maxMt=Math.max(maxMt,active.size);last.set(e.pointerId,norm(e));stroke(e);info()};
+  cv.onpointermove=e=>{if(active.has(e.pointerId))stroke(e)};
+  const up=e=>{active.delete(e.pointerId);last.delete(e.pointerId);info()};
+  cv.onpointerup=up;cv.onpointercancel=up;
+  $('#reset',body).onclick=reset;reset();
+  sheetCleanup=()=>clearTimeout(timer);
+};
+
+/* --- Display --- */
+H.display=()=>{
+  const COLORS=[['#ffffff','Bianco'],['#000000','Nero'],['#ff0000','Rosso'],['#00ff00','Verde'],['#0000ff','Blu'],['#808080','Grigio']];
+  let ov=null;
+  const start=()=>{
+    let i=0;ov=document.createElement('div');ov.id='colorOverlay';ov.innerHTML='<span></span>';
+    const show=()=>{ov.style.background=COLORS[i][0];$('span',ov).textContent=`${COLORS[i][1]} (${i+1}/${COLORS.length}) — tocca per continuare`};
+    ov.onclick=()=>{i++;if(i>=COLORS.length){ov.remove();ov=null}else show()};
+    show();document.body.append(ov);
+  };
+  const extra=el(`<div class="row wrap"><button class="btn primary" id="go">▶︎ Avvia test colori a schermo intero</button></div>`);
+  $('#go',extra).onclick=start;
+  checklistTest('display','Display',
+    'Avvia il test e scorri i colori: cerca pixel morti o bloccati, macchie, aloni, immagini residue e dominanti gialle ai bordi. Aumenta la luminosità al massimo.',
+    [['pixels','Nessun <b>pixel morto o bloccato</b> sui colori pieni'],
+     ['spots','Nessuna <b>macchia, alone o immagine residua</b> (burn‑in)'],
+     ['uniform','<b>Uniformità</b>: nessuna dominante gialla/rosata, bordi regolari'],
+     ['glass','Vetro senza <b>crepe</b> né graffi profondi'],
+     ['truetone','<b>True Tone</b> / luminosità automatica disponibili e funzionanti']],extra);
+  sheetCleanup=()=>{if(ov){ov.remove();ov=null}};
+};
+
+/* --- Fotocamere --- */
+H.camera=()=>{
+  let stream;
+  const body=el(`<div><p>Concedi l’accesso, prova ogni fotocamera e verifica messa a fuoco, nitidezza e assenza di macchie.</p>
+    <div class="row wrap"><button class="btn" id="back">Posteriore</button><button class="btn" id="front">Anteriore</button><button class="btn" id="stop">Stop</button></div>
+    <div class="row wrap" style="margin-top:8px"><select id="cams" aria-label="Scegli fotocamera"></select><button class="btn" id="snap">📸 Scatta</button></div>
+    <video id="vid" playsinline autoplay muted></video><div class="small" id="info" style="margin-top:6px"></div><canvas id="shot" hidden style="margin-top:8px"></canvas></div>`);
+  const sel=$('#cams',body),vid=$('#vid',body),cnv=$('#shot',body);
+  const stop=()=>{if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}vid.srcObject=null};
+  async function list(){try{const d=(await navigator.mediaDevices.enumerateDevices()).filter(x=>x.kind==='videoinput'),cur=stream?.getVideoTracks()[0]?.getSettings().deviceId;sel.innerHTML=d.map((c,i)=>`<option value="${esc(c.deviceId)}" ${c.deviceId===cur?'selected':''}>${esc(c.label||'Fotocamera '+(i+1))}</option>`).join('')}catch{}}
+  async function start(video){
+    stop();
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({video,audio:false});vid.srcObject=stream;await vid.play().catch(()=>{});
+      const tr=stream.getVideoTracks()[0],s=tr.getSettings?tr.getSettings():{};
+      $('#info',body).textContent=`${tr.label||'Fotocamera'} · ${s.width||'?'}×${s.height||'?'}${s.frameRate?' · '+Math.round(s.frameRate)+' fps':''}`;
+      list();
+    }catch{toast('Accesso alla fotocamera negato o non disponibile')}
+  }
+  $('#back',body).onclick=()=>start({facingMode:{ideal:'environment'}});
+  $('#front',body).onclick=()=>start({facingMode:'user'});
+  $('#stop',body).onclick=stop;
+  sel.onchange=()=>start({deviceId:{exact:sel.value}});
+  $('#snap',body).onclick=()=>{if(!vid.videoWidth)return toast('Avvia prima una fotocamera');cnv.width=vid.videoWidth;cnv.height=vid.videoHeight;cnv.getContext('2d').drawImage(vid,0,0);cnv.hidden=false};
+  const bar=resultBar('camera'),cl=checklist('camera',[
+    ['focus','<b>Messa a fuoco</b> rapida e nitida'],
+    ['lenses','<b>Tutte le lenti</b> funzionano (grandangolo, principale, tele, frontale)'],
+    ['clean','Lenti senza <b>macchie, polvere o crepe</b>; foto nitide'],
+    ['torch','<b>Flash / torcia</b> funzionante (Centro di Controllo)'],
+    ['video','<b>Video con audio</b> registrato correttamente']],c=>bar.suggest(c.n===c.t?'ok':null));
+  body.append(cl,bar);const c0=cl.counts();bar.suggest(c0.n===c0.t?'ok':null);
+  openSheet('Fotocamere',body,stop);
+};
+
+/* --- Sensori --- */
+H.sensors=()=>{
+  let on=false,rng={x:[1e9,-1e9],y:[1e9,-1e9],z:[1e9,-1e9]},gyroMax=0,orient={b:0,g:0},raf,bar,cl;
+  const body=el(`<div><p>Premi «Avvia» (iOS chiede il permesso), poi inclina, ruota e scuoti il telefono: i valori devono cambiare in modo fluido.</p>
+    <div class="row wrap"><button class="btn primary" id="go">Avvia sensori</button><button class="btn" id="stop">Stop</button></div>
+    <div class="level" aria-hidden="true"><i id="dot"></i></div>
+    <div class="mono small" id="vals">—</div><div class="small" id="verdict" style="margin-top:6px"></div></div>`);
+  const span=a=>a[1]-a[0];
+  const accelOk=()=>Math.max(span(rng.x),span(rng.y),span(rng.z))>1.5,gyroOk=()=>gyroMax>20;
+  const sug=()=>{const c=cl.counts();bar.suggest(accelOk()&&gyroOk()&&c.n===c.t?'ok':null)};
+  const onMotion=e=>{
+    const a=e.accelerationIncludingGravity||{},r=e.rotationRate||{};
+    for(const k of ['x','y','z']){const v=a[k];if(typeof v==='number'){rng[k][0]=Math.min(rng[k][0],v);rng[k][1]=Math.max(rng[k][1],v)}}
+    gyroMax=Math.max(gyroMax,Math.abs(r.alpha||0),Math.abs(r.beta||0),Math.abs(r.gamma||0));
+    body._a=a;body._r=r;
+  };
+  const onOrient=e=>{orient={b:e.beta||0,g:e.gamma||0}};
+  const f=v=>typeof v==='number'?v.toFixed(2).padStart(7):'    n/d';
+  const tick=()=>{
+    const a=body._a||{},r=body._r||{};
+    $('#vals',body).textContent=`Accelerometro  x ${f(a.x)}  y ${f(a.y)}  z ${f(a.z)} m/s²\nGiroscopio     α ${f(r.alpha)}  β ${f(r.beta)}  γ ${f(r.gamma)} °/s\nOrientamento   β ${f(orient.b)}°  γ ${f(orient.g)}°`;
+    const cl2=(v,m)=>Math.max(-m,Math.min(m,v));
+    $('#dot',body).style.left=(50+cl2(orient.g,45)/45*40)+'%';$('#dot',body).style.top=(50+cl2(orient.b,45)/45*40)+'%';
+    $('#verdict',body).textContent=`Accelerometro: ${accelOk()?'✓ movimento rilevato':'… muovi il telefono'} · Giroscopio: ${gyroOk()?'✓ rotazione rilevata':'… ruotalo'}`;
+    sug();raf=requestAnimationFrame(tick);
+  };
+  const stop=()=>{on=false;cancelAnimationFrame(raf);window.removeEventListener('devicemotion',onMotion);window.removeEventListener('deviceorientation',onOrient)};
+  $('#go',body).onclick=async()=>{
+    if(typeof DeviceMotionEvent==='undefined'){toast('Sensori non disponibili in questo browser');return}
+    try{
+      if(typeof DeviceMotionEvent.requestPermission==='function'){const r=await DeviceMotionEvent.requestPermission();if(r!=='granted'){toast('Permesso sensori negato');return}}
+      if(on)return;on=true;window.addEventListener('devicemotion',onMotion);window.addEventListener('deviceorientation',onOrient);tick();
+    }catch{toast('Impossibile avviare i sensori (serve una connessione HTTPS)')}
+  };
+  $('#stop',body).onclick=stop;
+  bar=resultBar('sensors');
+  cl=checklist('sensors',[
+    ['rotate','<b>Rotazione automatica</b> dello schermo (verticale/orizzontale)'],
+    ['prox','<b>Prossimità</b>: in chiamata lo schermo si spegne vicino all’orecchio'],
+    ['compass','<b>Bussola</b>: l’app Bussola punta correttamente e si calibra'],
+    ['light','<b>Luminosità automatica</b> reagisce alla luce']],sug);
+  body.append(cl,bar);
+  openSheet('Sensori',body,stop);
+};
+
+/* --- Sicurezza --- */
+H.security=()=>checklistTest('security','Sicurezza & iCloud',
+  '<b>Controllo fondamentale su un usato</b>: un iPhone con Blocco attivazione o MDM può risultare inutilizzabile. Se uno di questi punti fallisce, segna «Problema».',
+  [['icloud','<b>Blocco attivazione</b> assente: Trova il mio disattivato e Account Apple del precedente proprietario rimosso'],
+   ['mdm','Nessun <b>profilo MDM</b> (Generali → VPN e gestione dispositivo)'],
+   ['carrier','Nessun <b>blocco operatore</b> (Generali → Info → «Blocco operatore: nessuna limitazione SIM»)'],
+   ['reset','Dispositivo <b>inizializzato</b>, senza codice di sblocco del precedente proprietario'],
+   ['faceid','<b>Face ID / Touch ID</b> configurato e funzionante'],
+   ['imei','<b>IMEI non segnalato</b> come rubato o bloccato (verifica con operatore o servizio di controllo)']]);
+
+/* --- Parti & originalità --- */
+H.parts=()=>checklistTest('parts','Parti & originalità',
+  'Controlla che il telefono non sia stato aperto o riparato con ricambi non verificati.',
+  [['history','<b>Parti e cronologia assistenza</b> (Generali → Info): nessuna parte «sconosciuta» o non verificata (iOS 15.2+)'],
+   ['screws','<b>Viti pentalobe</b> in basso integre, senza graffi o segni di apertura'],
+   ['gaps','Cornice e vetro <b>uniformi</b>, nessuna fessura né display bombato'],
+   ['liquid','<b>Indicatore di liquidi</b> (vano SIM) bianco/argento, non rosso'],
+   ['cosmetic','Nessuna <b>ammaccatura profonda</b> o crepa su vetro e retro'],
+   ['display','Nessun messaggio <b>«Display non originale»</b>; True Tone disponibile']]);
+
+/* --- Batteria --- */
+H.battery=()=>{
+  const b=state.battery||{};
+  const body=el(`<div><p>Safari su iOS non espone la batteria: inserisci i dati da <span class="kbd">Impostazioni → Batteria → Stato batteria</span>.</p>
+    <div class="row wrap"><div class="field half"><label class="small" for="cap">Capacità massima (%)</label><input id="cap" type="number" inputmode="numeric" min="1" max="110" placeholder="es. 92" /></div>
+    <div class="field half"><label class="small" for="cyc">Cicli di carica (se noto)</label><input id="cyc" type="number" inputmode="numeric" min="0" placeholder="—" /></div></div>
+    <div class="checks"><label><input type="checkbox" id="svc" /><span>Compare «Assistenza batteria» / «Verifica non riuscita» / batteria non originale</span></label></div>
+    <div class="card" id="eval" style="margin-top:10px" aria-live="polite">Inserisci la capacità per ottenere la valutazione.</div>
+    <div class="field"><label class="small" for="bnote">Nota facoltativa</label><input id="bnote" maxlength="200" /></div>
+    <div class="row wrap"><button class="btn primary" id="save">Salva &amp; valuta</button><button class="btn ghost" id="clear">Azzera esito</button></div></div>`);
+  const cap=$('#cap',body),cyc=$('#cyc',body),svc=$('#svc',body),note=$('#bnote',body);
+  cap.value=b.cap||'';cyc.value=b.cycles||'';svc.checked=!!b.serviceMsg;note.value=b.note||'';
+  const evaluate=()=>{
+    const c=parseFloat(cap.value),cy=parseInt(cyc.value,10);let s=null,why=[];
+    if(!isNaN(c)){s=c>=85?'ok':c>=80?'warn':'bad';why.push(`Capacità ${c}% ${c>=85?'(buona)':c>=80?'(vicina alla soglia di sostituzione)':'(sotto l’80%: batteria da sostituire)'}`)}
+    if(!isNaN(cy)&&cy>=1000){if(s==='ok')s='warn';why.push(`${cy} cicli (molto usata)`)}
+    if(svc.checked){if(s!=='bad')s='warn';why.push('Messaggio di assistenza presente')}
+    return {s,why};
+  };
+  const show=()=>{const e=evaluate();$('#eval',body).innerHTML=e.s?`<b class="st ${e.s}">${LABEL[e.s]}</b> — ${esc(e.why.join(' · '))}`:'Inserisci la capacità per ottenere la valutazione.'};
+  [cap,cyc,svc].forEach(x=>x.addEventListener('input',show));show();
+  $('#save',body).onclick=()=>{const e=evaluate();if(!e.s)return toast('Inserisci almeno la capacità massima');patch('battery',{cap:cap.value,cycles:cyc.value,serviceMsg:svc.checked,note:note.value.trim()});setStatus('battery',e.s);closeSheet()};
+  $('#clear',body).onclick=()=>{setStatus('battery',null);closeSheet()};
+  openSheet('Batteria',body);
+};
+
+/* --- Memoria --- */
+H.storage=()=>{
+  const CAPS=[64,128,256,512,1024,2048],st=state.storage||{};
+  const opts=sel=>`<option value="">—</option>`+CAPS.map(c=>`<option value="${c}" ${String(sel)===String(c)?'selected':''}>${c>=1024?c/1024+' TB':c+' GB'}</option>`).join('');
+  const wrap=el(`<div><p>Confronta la capacità dichiarata dal venditore con quella mostrata dal telefono (<span class="kbd">Generali → Info → Capacità</span> e <span class="kbd">Spazio iPhone</span>). Una differenza indica un dispositivo manomesso o descritto male.</p>
+    <div class="row wrap"><div class="field half"><label class="small" for="decl">Capacità dichiarata</label><select id="decl">${opts(st.declared)}</select></div>
+    <div class="field half"><label class="small" for="shown">Capacità mostrata</label><select id="shown">${opts(st.shown)}</select></div></div>
+    <div class="card" id="cmp" aria-live="polite"></div>
+    <div class="row wrap"><button class="btn" id="est">Stima spazio del browser (indicativa)</button></div><div class="small" id="est-out" style="margin:6px 0"></div></div>`);
+  const bar=resultBar('storage');
+  let cl;
+  const sug=()=>{
+    const d=$('#decl',wrap).value,s=$('#shown',wrap).value,c=cl.counts();
+    patch('storage',{declared:d,shown:s});
+    $('#cmp',wrap).innerHTML=!d||!s?'Seleziona entrambe le capacità.':d===s?'<b class="st ok">✓ Coincidono</b>':'<b class="st bad">✕ Non coincidono</b> — verifica con il numero di modello (Generali → Info).';
+    bar.suggest(d&&s&&d!==s?'bad':(d&&s&&c.n===c.t?'ok':null));
+  };
+  cl=checklist('storage',[['load','<b>Spazio iPhone</b> si carica senza errori'],['write','<b>Scrittura</b>: una foto o un video appena registrati si salvano e riaprono correttamente']],sug);
+  $('#decl',wrap).onchange=sug;$('#shown',wrap).onchange=sug;
+  $('#est',wrap).onclick=async()=>{const o=$('#est-out',wrap);if(navigator.storage&&navigator.storage.estimate){const e=await navigator.storage.estimate();o.innerHTML=`Quota del browser: <b>${fmtBytes(e.quota||0)}</b> · in uso: <b>${fmtBytes(e.usage||0)}</b> (non è la memoria dell’iPhone)`}else o.textContent='API non disponibile su questo browser.'};
+  wrap.append(cl,bar);sug();
+  openSheet('Memoria interna',wrap);
+};
+
+/* --- Log & crash --- */
+const LOG_RULES=[
+  ['panic-full|kernel panic|cpu panic|smc panic|panicstring','Kernel panic','bad'],
+  ['watchdog','Watchdog timeout','bad'],
+  ['\\bnand\\b','Errori memoria NAND','bad'],
+  ['baseband','Baseband / modem','warn'],
+  ['thermal|overheat','Eventi termici','warn'],
+  ['jetsam|lowmemory|low memory','Memoria insufficiente (jetsam)','warn'],
+  ['shutdown cause|unexpected shutdown|spontaneous reset','Spegnimenti anomali','warn'],
+  ['\\bi2c\\b','Errori bus I²C','warn']
+];
+H.logs=()=>{
+  const body=el(`<div><p>Opzionale: carica uno o più file di log iOS (Impostazioni → Privacy e sicurezza → Analisi e miglioramenti → Dati analisi → condividi). L’analisi avviene <b>sul dispositivo</b>: nessun dato viene inviato.</p>
+    <input type="file" id="file" multiple aria-label="Carica file di log" />
+    <div class="field"><label class="small">Esiti</label><div id="out" class="small" aria-live="polite"></div></div></div>`);
+  body.append(resultBar('logs'));
+  const out=$('#out',body),prev=state.logs?.summary;
+  const showSum=(sum,files)=>{out.innerHTML=`<div>${files} file analizzati</div><table class="tbl">${sum.map(r=>`<tr><td>${esc(r.label)}</td><td>${r.count}</td><td class="st ${r.count?r.sev:'ok'}">${r.count?LABEL[r.sev]:'—'}</td></tr>`).join('')}</table>`};
+  if(prev)showSum(prev,state.logs.files||0);
+  $('#file',body).addEventListener('change',async e=>{
+    const files=[...e.target.files];if(!files.length)return;
+    out.textContent='Analizzo…';
+    const sum=LOG_RULES.map(([,label,sev])=>({label,sev,count:0}));
+    for(const f of files){const txt=await f.text();LOG_RULES.forEach(([p],i)=>{sum[i].count+=(txt.match(new RegExp(p,'gi'))||[]).length})}
+    showSum(sum,files.length);
+    const crit=sum.some(r=>r.sev==='bad'&&r.count),warn=sum.some(r=>r.sev==='warn'&&r.count);
+    patch('logs',{summary:sum,files:files.length});setStatus('logs',crit?'bad':warn?'warn':'ok');
+    toast(crit?'Rilevati errori critici':warn?'Rilevati avvisi':'Nessun pattern critico');
+  });
+  openSheet('Log & crash',body);
+};
+
+/* --- Info dispositivo --- */
+H.device=()=>{
+  const d=state.device||{};
+  const body=el(`<div><p>I browser non possono leggere modello e numeri di serie: indicali a mano da <span class="kbd">Generali → Info</span> (l’IMEI si vede anche digitando <span class="kbd">*#06#</span>).</p>
+    <div class="row wrap"><div class="field half"><label class="small" for="dm">Modello</label><input id="dm" list="models" placeholder="iPhone …" /></div>
+    <div class="field half"><label class="small" for="dv">Versione iOS</label><input id="dv" placeholder="es. 26.1" inputmode="decimal" /></div></div>
+    <div class="row wrap"><div class="field half"><label class="small" for="dsn">Numero di serie</label><input id="dsn" autocapitalize="characters" autocomplete="off" /></div>
+    <div class="field half"><label class="small" for="dimei">IMEI (15 cifre)</label><input id="dimei" inputmode="numeric" autocomplete="off" maxlength="15" /></div></div>
+    <div class="small" id="valid" aria-live="polite"></div>
+    <div class="field"><label class="small">Info browser</label><textarea rows="2" readonly>${esc(navigator.userAgent)}</textarea></div></div>`);
+  const bar=resultBar('device');body.append(bar);
+  const f={model:$('#dm',body),ios:$('#dv',body),sn:$('#dsn',body),imei:$('#dimei',body)};
+  for(const k in f)f[k].value=d[k]||'';
+  const validate=()=>{
+    const im=f.imei.value.trim(),sn=f.sn.value.trim(),msg=[];let all=true;
+    if(im){if(/^\d{15}$/.test(im)&&luhn(im))msg.push('✓ IMEI valido (checksum corretto)');else{msg.push('✕ IMEI non valido (15 cifre + checksum)');all=false}}else all=false;
+    if(sn){if(/^[A-Z0-9]{8,14}$/i.test(sn))msg.push('✓ Formato numero di serie plausibile');else{msg.push('! Il numero di serie ha un formato insolito');all=false}}else all=false;
+    if(!f.model.value.trim())all=false;
+    $('#valid',body).innerHTML=msg.join('<br>');bar.suggest(all?'ok':null);
+  };
+  for(const k in f)f[k].addEventListener('input',()=>{patch('device',{[k]:f[k].value.trim()});validate()});
+  validate();
+  openSheet('Info dispositivo',body);
+};
+
+/* ===================== Report ===================== */
+function assembleReport(){
+  const score=computeScore(),results={};
+  for(const t of TESTS)results[t.id]={status:null,...(state[t.id]||{})};
+  const core={app:'2M iPhone Check Tool',version:'2.0',id:state.id,startedAt:new Date(state.startedAt||Date.now()).toISOString(),timestamp:new Date().toISOString(),
+    customer:state.customer||'',device:{model:state.device?.model||'',sn:state.device?.sn||'',imei:state.device?.imei||'',ios:state.device?.ios||''},score,results,notes:state.notes||''};
+  core.checksum=cyrb53(JSON.stringify([core.id,core.customer,core.device,TESTS.map(t=>results[t.id].status),core.notes]));
+  return {...core,signature:state.signature||null};
+}
+function asTxt(r){
+  const L=['2M Digital Consulting — iPhone Check Tool — Report',`ID ${r.id}  ·  ${fmtDate(r.timestamp)}`,''];
+  L.push(`Cliente: ${r.customer||'—'}`,`Dispositivo: ${r.device.model||'—'}  ·  iOS ${r.device.ios||'—'}`,`Seriale: ${r.device.sn||'—'}  ·  IMEI: ${r.device.imei||'—'}`,'','Esiti test:');
+  for(const t of TESTS){const x=r.results[t.id];L.push(`- ${t.title}: ${x.status?LABEL[x.status]:'non eseguito'}${x.note?' — '+x.note:''}`)}
+  const b=r.results.battery||{},s=r.results.storage||{};
+  L.push('',`Batteria: capacità max ${b.cap||'—'}%  ·  cicli ${b.cycles||'—'}${b.serviceMsg?'  ·  messaggio di assistenza':''}`);
+  if(s.declared||s.shown)L.push(`Memoria: dichiarata ${s.declared||'—'} GB  ·  mostrata ${s.shown||'—'} GB`);
+  L.push('','Note:',r.notes||'—','',`Punteggio complessivo: ${r.score.percent}% (${r.score.verdict}) — ${r.score.done}/${r.score.total} test eseguiti`,`Codice di controllo: ${r.checksum}`,r.signature?'Firmato dal cliente: sì':'Firma cliente: assente');
+  return L.join('\n');
+}
+function qrPayload(r){
+  const ab={ok:'OK',warn:'AT',bad:'KO'};
+  return ['2M-CHECK v2',`ID ${r.id}`,`Data ${fmtDate(r.timestamp)}`,r.customer?`Cliente ${r.customer.slice(0,60)}`:'',
+    `${r.device.model||'iPhone'} SN ${r.device.sn||'-'} IMEI ${r.device.imei||'-'}`,
+    `Punteggio ${r.score.percent}% ${r.score.verdict} (${r.score.done}/${r.score.total})`,
+    TESTS.map(t=>`${t.id}:${ab[r.results[t.id].status]||'--'}`).join(' '),`Chk ${r.checksum}`].filter(Boolean).join('\n');
+}
+function drawQR(text,px=240){
+  try{if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs['UTF-8'])qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8']}catch{}
+  const q=qrcode(0,'M');q.addData(text);q.make();
+  const n=q.getModuleCount(),quiet=4,cell=Math.max(3,Math.floor(px/(n+quiet*2))),size=(n+quiet*2)*cell;
+  const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d');
+  g.fillStyle='#fff';g.fillRect(0,0,size,size);g.fillStyle='#000';
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(q.isDark(y,x))g.fillRect((x+quiet)*cell,(y+quiet)*cell,cell,cell);
   return c;
 }
+function download(name,content,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500)}
+async function shareText(name,content){
+  const f=new File([content],name,{type:'text/plain'});
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+  download(name,content,'text/plain');
+}
+const fileBase=r=>`iphone-check-${slug(r.device.model)||'report'}-${r.timestamp.slice(0,10).replaceAll('-','')}`;
 
+function buildPrint(r){
+  let qr='';try{qr=drawQR(qrPayload(r),260).toDataURL('image/png')}catch{}
+  const rows=TESTS.map(t=>{const x=r.results[t.id];return `<tr><td>${t.icon} ${esc(t.title)}</td><td class="st ${x.status||'none'}">${x.status?LABEL[x.status]:'—'}</td><td>${esc(x.note||'')}</td></tr>`}).join('');
+  const b=r.results.battery||{},s=r.results.storage||{};
+  $('#printReport').innerHTML=`
+    <div class="ph"><div><h1>iPhone Check — Report di verifica</h1><div>2M Digital Consulting SRLS — www.2m-srls.com</div></div><div style="text-align:right">ID <b>${esc(r.id)}</b><br>${fmtDate(r.timestamp)}</div></div>
+    <table><tr><th>Cliente</th><td>${esc(r.customer||'—')}</td><th>Modello</th><td>${esc(r.device.model||'—')}</td></tr>
+    <tr><th>N. di serie</th><td>${esc(r.device.sn||'—')}</td><th>IMEI</th><td>${esc(r.device.imei||'—')}</td></tr>
+    <tr><th>iOS</th><td>${esc(r.device.ios||'—')}</td><th>Batteria</th><td>${b.cap?esc(b.cap)+'%':'—'}${b.cycles?' · '+esc(b.cycles)+' cicli':''}</td></tr>
+    ${s.declared||s.shown?`<tr><th>Memoria</th><td colspan="3">dichiarata ${esc(s.declared||'—')} GB · mostrata ${esc(s.shown||'—')} GB</td></tr>`:''}</table>
+    <p><b>Esito complessivo: ${r.score.percent}% — ${esc(r.score.verdict)}</b> (${r.score.done}/${r.score.total} test eseguiti)</p>
+    <table><thead><tr><th>Test</th><th>Esito</th><th>Note</th></tr></thead><tbody>${rows}</tbody></table>
+    ${r.notes?`<p><b>Note finali</b><br>${esc(r.notes).replace(/\n/g,'<br>')}</p>`:''}
+    <div class="pf"><div><div style="height:90px;border-bottom:1px solid #000;display:flex;align-items:flex-end">${r.signature?`<img src="${r.signature}" alt="Firma" style="max-height:88px">`:''}</div><div>Firma del cliente${r.customer?' — '+esc(r.customer):''}</div></div>
+    <div style="flex:0 0 130px;text-align:center">${qr?`<img src="${qr}" alt="QR" width="130" height="130"><div style="font-size:10px">Codice di controllo ${esc(r.checksum)}</div>`:''}</div></div>
+    <div class="legal">Verifica funzionale non invasiva eseguita tramite browser. Non sostituisce la diagnostica ufficiale Apple né una perizia tecnica. I dati sono stati elaborati sul dispositivo.</div>`;
+}
+function printReport(r){buildPrint(r);setTimeout(()=>window.print(),60)}
+
+/* --- Cronologia --- */
+function archive(rep){
+  rep=rep||assembleReport();
+  if(!rep.score.done&&!rep.customer)return;
+  const h=jget(HKEY,[]),i=h.findIndex(x=>x.id===rep.id);
+  if(i>=0)h[i]=rep;else h.unshift(rep);
+  if(!jset(HKEY,h.slice(0,30)))toast('Memoria piena: impossibile salvare in cronologia');
+}
+function loadReport(r){
+  const s={id:r.id,startedAt:Date.parse(r.startedAt)||Date.now(),customer:r.customer,notes:r.notes};
+  if(r.signature)s.signature=r.signature;
+  for(const t of TESTS)s[t.id]=r.results[t.id]||{};
+  state=s;persist();render();
+}
+function showHistory(){
+  const h=jget(HKEY,[]);
+  const body=el(`<div><p>Gli ultimi 30 controlli salvati su questo dispositivo.</p><div id="list"></div><div class="row wrap" style="margin-top:12px"><button class="btn" id="all">Esporta tutto (.json)</button></div></div>`);
+  const list=$('#list',body);
+  const draw=()=>{
+    const hh=jget(HKEY,[]);
+    list.innerHTML=hh.length?hh.map((r,i)=>`<div class="hrow"><div><b>${esc(r.customer||'Senza nome')}</b> · ${esc(r.device.model||'iPhone')}<div class="small">${fmtDate(r.timestamp)} · ${r.score.percent}% ${esc(r.score.verdict)} · ID ${esc(r.id)}</div></div>
+      <div class="row wrap"><button class="btn" data-a="open" data-i="${i}">Riapri</button><button class="btn" data-a="txt" data-i="${i}">TXT</button><button class="btn" data-a="json" data-i="${i}">JSON</button><button class="btn" data-a="pdf" data-i="${i}">PDF</button><button class="btn bad" data-a="del" data-i="${i}" aria-label="Elimina">🗑</button></div></div>`).join(''):'<div class="small">Nessun controllo salvato.</div>';
+  };
+  draw();
+  list.onclick=e=>{
+    const b=e.target.closest('button[data-a]');if(!b)return;
+    const hh=jget(HKEY,[]),r=hh[+b.dataset.i];if(!r)return;
+    switch(b.dataset.a){
+      case 'txt':shareText(fileBase(r)+'.txt',asTxt(r));break;
+      case 'json':download(fileBase(r)+'.json',JSON.stringify(r,null,2),'application/json');break;
+      case 'pdf':printReport(r);break;
+      case 'del':if(confirm('Eliminare questo controllo dalla cronologia?')){hh.splice(+b.dataset.i,1);jset(HKEY,hh);draw()}break;
+      case 'open':if(confirm('Riaprire questo controllo? Quello attuale viene salvato in cronologia.')){archive();loadReport(r);closeSheet();toast('Controllo riaperto')}break;
+    }
+  };
+  $('#all',body).onclick=()=>{if(!h.length)return toast('Cronologia vuota');download('iphone-check-cronologia.json',JSON.stringify(jget(HKEY,[]),null,2),'application/json')};
+  openSheet('Cronologia',body);
+}
+
+/* --- Finalizza --- */
 function showFinalize(){
-  const score = computeScore();
-  const report = assembleReport();
-  const node = el(`
-    <div>
-      <p>Risultato complessivo dei test.</p>
-      <div class='row wrap' style='gap:8px'>
-        <div class='badge'>Punteggio: <b>${score.percent}%</b> (${score.verdict})</div>
-        <div class='badge'>Test superati: <b>${score.points.toFixed(1)}</b>/<b>${score.total}</b></div>
-      </div>
-      <div class='field'><label class='small'>QR per firma digitale del cliente</label>
-        <div class='qrWrap'>
-          <div id='qrBox'></div>
-          <div class='small muted'>Il QR codifica il report (JSON) per archiviazione o firma. Scansiona e salva.</div>
-        </div>
-      </div>
-    </div>`);
-  openSheet('Esito & QR', node);
-  const box = node.querySelector('#qrBox');
-  const canvas = makePseudoQR(JSON.stringify(report));
-  canvas.className='qr'; box.appendChild(canvas);
+  const rep=assembleReport();archive(rep);
+  const sc=rep.score,missing=TESTS.filter(t=>!rep.results[t.id].status).map(t=>t.title);
+  const rows=TESTS.map(t=>{const x=rep.results[t.id];return `<tr><td>${t.icon} ${esc(t.title)}</td><td class="st ${x.status||'none'}">${x.status?LABEL[x.status]:'—'}</td></tr>`}).join('');
+  const body=el(`<div>
+    <div class="row wrap" style="gap:8px;margin:8px 0">
+      <div class="badge">Punteggio: <b>${sc.percent}%</b> (${esc(sc.verdict)})</div>
+      <div class="badge">Test eseguiti: <b>${sc.done}</b>/<b>${sc.total}</b></div>
+    </div>
+    ${missing.length?`<p>⚠️ Test non eseguiti: ${esc(missing.join(', '))}. Il punteggio è provvisorio.</p>`:''}
+    <table class="tbl">${rows}</table>
+    <div class="field"><label class="small">Firma del cliente (accetta l’esito del controllo)</label><canvas class="sig" id="sig" aria-label="Area firma"></canvas>
+      <div class="row"><button class="btn" id="sigClear">Cancella firma</button></div></div>
+    <div class="field"><label class="small">QR di riepilogo (ID, dispositivo, esiti e codice di controllo)</label><div id="qrBox" class="center"></div>
+      <div class="small center">Scansionandolo con la fotocamera dell’iPhone compare il riepilogo in chiaro.</div></div>
+    <div class="row wrap" id="acts"></div></div>`);
+  const acts=$('#acts',body);
+  const btn=(t,fn,cls='')=>{const b=el(`<button class="btn ${cls}">${t}</button>`);b.onclick=fn;acts.append(b)};
+  btn('🖨 Stampa / PDF',()=>printReport(assembleReport()),'primary');
+  if(navigator.share)btn('↗︎ Condividi report',()=>{const r=assembleReport();shareText(fileBase(r)+'.txt',asTxt(r))});
+  btn('Esporta .txt',()=>{const r=assembleReport();download(fileBase(r)+'.txt',asTxt(r),'text/plain')});
+  btn('Esporta .json',()=>{const r=assembleReport();download(fileBase(r)+'.json',JSON.stringify(r,null,2),'application/json')});
+  openSheet('Esito & report',body);
+  try{const qc=drawQR(qrPayload(rep));qc.style.cssText='width:100%;max-width:240px;height:auto;border:1px solid var(--border)';$('#qrBox',body).append(qc)}catch{$('#qrBox',body).textContent='Impossibile generare il QR.'}
+  /* area firma */
+  const cv=$('#sig',body),g=cv.getContext('2d'),dpr=Math.min(3,window.devicePixelRatio||1);
+  cv.width=Math.round(cv.clientWidth*dpr);cv.height=Math.round(150*dpr);
+  g.lineWidth=2.2*dpr;g.lineCap='round';g.lineJoin='round';g.strokeStyle='#0f172a';
+  if(state.signature){const im=new Image();im.onload=()=>g.drawImage(im,0,0,cv.width,cv.height);im.src=state.signature}
+  let drawing=false,lp=null,dirty=false;
+  const pt=e=>{const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]};
+  cv.onpointerdown=e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch{}drawing=true;lp=pt(e);g.beginPath();g.moveTo(...lp);g.lineTo(lp[0]+.1,lp[1]);g.stroke()};
+  cv.onpointermove=e=>{if(!drawing)return;const p=pt(e);g.beginPath();g.moveTo(...lp);g.lineTo(...p);g.stroke();lp=p;dirty=true};
+  const end=()=>{if(!drawing)return;drawing=false;if(dirty){setState({signature:cv.toDataURL('image/png')});archive();dirty=false}};
+  cv.onpointerup=end;cv.onpointercancel=end;
+  $('#sigClear',body).onclick=()=>{g.clearRect(0,0,cv.width,cv.height);const s={...state};delete s.signature;state=s;persist();render();archive()};
 }
 
-// --- Export & report ---
-function assembleReport(){
-  return {
-    timestamp: new Date().toISOString(),
-    device: state.device||{},
-    results: {
-      audio: state.audio?.status||null,
-      buttons: state.buttons?.status||null,
-      charging: state.charging?.status||null,
-      wireless: state.wireless?.status||null,
-      touch: state.touch?.status||null,
-      camera: state.camera?.status||null,
-      logs: state.logs?.status||null,
-      battery: state.battery||{},
-      storage: state.storage?.status||null,
-      deviceInfoStatus: state.device?.status||null,
-    },
-    notes: state.notes||''
-  }
+/* ===================== Nuovo controllo ===================== */
+function newCheck(){
+  if(!confirm('Archiviare questo controllo in cronologia e iniziarne uno nuovo?'))return;
+  archive();
+  state={id:newId(),startedAt:Date.now()};persist();render();window.scrollTo({top:0,behavior:'smooth'});toast('Nuovo controllo avviato');
 }
+$('#btnNew').onclick=newCheck;
+$('#btnHist').onclick=showHistory;
+$('#btnFinal').onclick=showFinalize;
 
-function download(name, content, mime){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type:mime})); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
-
-function asTxt(obj){
-  const score = computeScore();
-  let out = `2M Digital Consulting — iPhone Check Tool — Report\n${new Date().toLocaleString()}\n\n`;
-  out += `Dispositivo: ${obj.device.model||'—'}  SN: ${obj.device.sn||'—'}\n`;
-  out += `\nEsiti test:\n`;
-  const map = {audio:'Audio/Microfono', buttons:'Tasti', charging:'Ricarica', wireless:'Wireless', touch:'Touch', camera:'Fotocamere', logs:'Log', storage:'Memoria', deviceInfoStatus:'Info dispositivo'};
-  Object.entries(obj.results).forEach(([k,v])=>{ if(k==='battery') return; out += `- ${map[k]||k}: ${v||'—'}\n` })
-  out += `\nBatteria: capacità max ${obj.results?.battery?.cap||'—'}%  cicli ${obj.results?.battery?.cycles||'—'}\n`;
-  out += `\nNote:\n${obj.notes||''}\n`;
-  out += `\nPunteggio complessivo: ${score.percent}% (${score.verdict})\n`;
-  return out;
-}
-
-document.getElementById('exportTxt').onclick = ()=>{ const r=assembleReport(); download('iphone-check-report.txt', asTxt(r), 'text/plain') }
-document.getElementById('exportJson').onclick = ()=>{ const r=assembleReport(); download('iphone-check-data.json', JSON.stringify(r,null,2), 'application/json') }
-document.getElementById('print').onclick = ()=>{ window.print() }
-document.getElementById('finalize').onclick = showFinalize;
-
-refreshStatuses();
+/* ===================== Avvio ===================== */
+render();
+(function installTip(){
+  try{
+    const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    const standalone=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+    if(ios&&!standalone&&!localStorage.getItem('iphone_check_tip'))$('#install').hidden=false;
+    $('#tipClose').onclick=()=>{$('#install').hidden=true;try{localStorage.setItem('iphone_check_tip','1')}catch{}};
+  }catch{}
+})();
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
 </script>
 </body>
 </html>
